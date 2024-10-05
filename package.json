@@ -1,0 +1,44 @@
+{
+  "name": "serve-hub",
+  "version": "1.0.0",
+  "description": "A comprehensive service finder application designed to connect users with service providers through a user-friendly web interface. The platform includes an admin office for management, a service provider admin office for handling provider-related tasks, and a fully functional website for seamless interaction. Built to streamline the process of locating, managing, and delivering services, the application offers powerful tools for both users and providers, ensuring efficiency and transparency in service management.",
+  "main": "index.js",
+  "scripts": {
+    "dev": "nodemon index.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/udoigwe/serve-hub.git"
+  },
+  "keywords": [
+    "Service",
+    "Finder",
+    "Node.js",
+    "express",
+    "ejs",
+    "mysql"
+  ],
+  "author": "Udo Igwe Uchechukwu",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/udoigwe/serve-hub/issues"
+  },
+  "homepage": "https://github.com/udoigwe/serve-hub#readme",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "crypto-js": "^4.2.0",
+    "dotenv": "^16.4.5",
+    "ejs": "^3.1.10",
+    "express": "^4.21.0",
+    "express-fileupload": "^1.5.1",
+    "express-validator": "^7.2.0",
+    "js-yaml": "^4.1.0",
+    "jsonwebtoken": "^9.0.2",
+    "moment": "^2.30.1",
+    "mysql2": "^3.11.3",
+    "nodemon": "^3.1.7",
+    "sharp": "^0.33.5",
+    "swagger-ui-express": "^5.0.1"
+  }
+}
