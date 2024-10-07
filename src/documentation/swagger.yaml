@@ -1,0 +1,356 @@
+openapi: 3.1.0
+info:
+    title: ServeHub API Documentation
+    version: 1.0.0
+    description: An API backend service developed for ServeHub service finder application and documented with swagger UI
+    license:
+        name: MIT
+        url: https://spdx.org/licenses/MIT.html
+    contact:
+        name: Uchechukwu Udo Igwe
+        url: #
+        email: udoigweuchechukwu@gmail.com
+        phone: +2348065198300
+servers:
+    - url: http://localhost:9001/api/v1
+      description: Development Server
+tags:
+    - name: Authentication
+      description: User Authentication Endpoints
+components:
+    schemas:
+        error:
+            type: boolean
+        signUpDTO:
+            type: object
+            required:
+                - user_full_name
+                - user_email
+                - user_phone
+                - user_password
+                - user_category
+                - user_avatar
+            properties:
+                user_full_name:
+                    type: string
+                    description: User full name
+                user_email:
+                    type: string
+                    description: User email
+                user_phone:
+                    type: string
+                    description: User phone
+                user_password:
+                    type: string
+                    description: Preffered password
+                user_category:
+                    type: string
+                    description: Category of user signing up
+                    enum: ["", Customer, Service Provider]
+                user_avatar:
+                    type: string
+                    description: User uploaded image file
+                    format: binary
+                certificate_of_incoporation:
+                    type: string
+                    description: Certificate of incoporation if user is a Service Provider (Compulsory if user is a service provider)
+                    format: binary
+                user_fb_url:
+                    type: string
+                    description: Facebook URL is any
+                user_instagram_url:
+                    type: string
+                    description: Instagram URL is any
+                user_x_url:
+                    type: string
+                    description: X URL is any
+                user_whatsapp_url:
+                    type: string
+                    description: Whatsapp URL is any
+                user_youtube_url:
+                    type: string
+                    description: Youtube URL is any
+                user_linkedin_url:
+                    type: string
+                    description: LinkedIn URL is any
+        signInDTO:
+            type: object
+            required:
+                - email
+                - password
+            properties:
+                email:
+                    type: string
+                    description: user email
+                password:
+                    type: string
+                    description: user stored password
+        accountUpdateDTO:
+            type: object
+            required:
+                - user_full_name
+                - user_email
+                - user_phone
+            properties:
+                user_full_name:
+                    type: string
+                    description: User full name
+                user_email:
+                    type: string
+                    description: User email
+                user_phone:
+                    type: string
+                    description: User phone
+                user_avatar:
+                    type: string
+                    description: User uploaded image file
+                    format: binary
+                user_fb_url:
+                    type: string
+                    description: Facebook URL if any
+                user_instagram_url:
+                    type: string
+                    description: Instagram URL if any
+                user_x_url:
+                    type: string
+                    description: X URL if any
+                user_whatsapp_url:
+                    type: string
+                    description: Whatsapp URL if any
+                user_youtube_url:
+                    type: string
+                    description: Youtube URL if any
+                user_linkedin_url:
+                    type: string
+                    description: LinkedIn URL if any
+        passwordUpdateDTO:
+            type: object
+            required:
+                - current_password
+                - new_password
+            properties:
+                current_password:
+                    type: string
+                    description: User current stored password
+                new_password:
+                    type: string
+                    description: User new preferred password
+        errorResponse:
+            type: object
+            properties:
+                error:
+                    type: boolean
+                message:
+                    type: string
+        messageResponse:
+            type: object
+            properties:
+                error:
+                    type: boolean
+                    example: false
+                message:
+                    type: string
+        userResponse:
+            type: object
+            properties:
+                user_id:
+                    type: integer
+                user_full_name:
+                    type: string
+                user_email:
+                    type: string
+                user_phone:
+                    type: string
+                user_category:
+                    type: string
+                certificate_of_incoporation_filename:
+                    type: string
+                user_avatar_filename:
+                    type: string
+                user_fb_url:
+                    type: string
+                user_instagram_url:
+                    type: string
+                user_x_url:
+                    type: string
+                user_whatsapp_url:
+                    type: string
+                user_youtube_url:
+                    type: string
+                user_linkedin_url:
+                    type: string
+                user_created_at:
+                    type: string
+                user_status:
+                    type: string
+        signUpResponseData:
+            type: object
+            properties:
+                error:
+                    type: boolean
+                    $ref: "#/components/schemas/error"
+                message:
+                    type: string
+                    description: Success message
+        signinResponseData:
+            type: object
+            properties:
+                error:
+                    type: boolean
+                    $ref: "#/components/schemas/error"
+                user:
+                    type: object
+                    $ref: "#/components/schemas/userResponse"
+                token:
+                    type: string
+                    description: User authentication token for requests
+                message:
+                    type: string
+                    description: Success message
+        accountUpdateResponseData:
+            type: object
+            properties:
+                error:
+                    type: boolean
+                    $ref: "#/components/schemas/error"
+                token:
+                    type: string
+                    description: User authentication token for requests
+                message:
+                    type: string
+                    description: Success message
+        passwordUpdateResponseData:
+            type: object
+            properties:
+                error:
+                    type: boolean
+                    $ref: "#/components/schemas/error"
+                message:
+                    type: string
+                    description: Success message
+    securitySchemes:
+        ApiKeyAuth:
+            type: apiKey
+            in: header
+            name: x-access-token
+paths:
+    /sign-up:
+        post:
+            summary: Sign Up endpoint
+            tags: [Authentication]
+            requestBody:
+                required: true
+                content:
+                    multipart/form-data:
+                        schema:
+                            $ref: "#/components/schemas/signUpDTO"
+            responses:
+                200:
+                    description: Sign Up successful.
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/signUpResponseData"
+                400:
+                    description: An error occured
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/errorResponse"
+                500:
+                    description: Some server error
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/errorResponse"
+    /sign-in:
+        post:
+            summary: Sign In endpoint
+            tags: [Authentication]
+            requestBody:
+                required: true
+                content:
+                    application/json:
+                        schema:
+                            $ref: "#/components/schemas/signInDTO"
+            responses:
+                200:
+                    description: Welcome On Board.
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/signinResponseData"
+                400:
+                    description: An error occured
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/errorResponse"
+                500:
+                    description: Some server error
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/errorResponse"
+    /account-update:
+        put:
+            summary: Account Update endpoint
+            tags: [Authentication]
+            security:
+                - ApiKeyAuth: []
+            requestBody:
+                required: true
+                content:
+                    multipart/form-data:
+                        schema:
+                            $ref: "#/components/schemas/accountUpdateDTO"
+            responses:
+                200:
+                    description: Account Updated successfully.
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/accountUpdateResponseData"
+                400:
+                    description: An error occured
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/errorResponse"
+                500:
+                    description: Some server error
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/errorResponse"
+    /password-update:
+        put:
+            summary: Password Update endpoint
+            tags: [Authentication]
+            security:
+                - ApiKeyAuth: []
+            requestBody:
+                required: true
+                content:
+                    application/json:
+                        schema:
+                            $ref: "#/components/schemas/passwordUpdateDTO"
+            responses:
+                200:
+                    description: Password Updated successfully.
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/passwordUpdateResponseData"
+                400:
+                    description: An error occured
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/errorResponse"
+                500:
+                    description: Some server error
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/errorResponse"
