@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <%- include('./partials/head') %>
+</head>
+
+<body class="authentication-page ">
+    <div class="d-flex justify-content-center vh-100 overflow-auto flex-column error-404">
+        <div class="contacts-overlay-img d-none d-md-block">
+            <img src="/assets/img/bg/bg-07.png" alt="img" class="img-fluid">
+        </div>
+
+        <div class="authentication-header">
+            <div class="container">
+                <div class="col-md-12">
+                    <div class="text-center">
+                        <img src="/assets/img/serve-hub-logo.png" width="15%" alt="logo">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+        <div class="main-wrapper">
+            <div class="container">
+                <div class="row justify-content-center">
+                    <div class="col-md-6 mx-auto">
+                        <div class="img-success d-flex justify-content-center mx-auto">
+                            <img src="/assets/img/bg/error-404.png" alt="Img" class="img-fluid">
+                        </div>
+                        <div>
+                            <h1 class="text-center display-6 mb-2">404 Oops! Page Not Found</h1>
+                            <div class="text-center mb-4">
+                                <span class="text-gray fs-14 ">This page doesn't exist or was removed! We suggest you
+                                    back to home.</span>
+                            </div>
+                            <div class="d-flex justify-content-center">
+                                <a href="/" class="btn btn-dark d-flex align-items-center "><i
+                                        class="ti ti-circle-arrow-left me-1"></i>Back to Home</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <div class="xb-cursor tx-js-cursor">
+        <div class="xb-cursor-wrapper">
+            <div class="xb-cursor--follower xb-js-follower"></div>
+        </div>
+    </div>
+
+
+    <%- include('./partials/scripts') %>
+</body>
+</html>

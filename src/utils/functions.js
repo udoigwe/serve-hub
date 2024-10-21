@@ -143,6 +143,11 @@ exports.isValidFile = (file, allowedExtensions) => {
     return allowedExtensions.includes(fileMimeType);
 }
 
+exports.isValidFile2 = (file, allowedExtensions) => {
+    const fileExtension = file.name.split('.').pop().toLowerCase();
+    return allowedExtensions.includes(fileExtension);
+};
+
 exports.isWithinFileSize = (file, allowedFileSize) => {
     const fileSize = file.size;
     return fileSize <= allowedFileSize;
