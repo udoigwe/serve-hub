@@ -29,6 +29,7 @@ app.use(
 app.use(express.static(__dirname + "/public"));
 app.use("/assets", express.static(__dirname + "/public/assets"));
 app.use("/uploads", express.static(__dirname + "/public/uploads"));
+app.use("/admin-assets", express.static(__dirname + "/public/admin-assets"));
 
 //set templating engine
 app.set("view engine", "ejs");
@@ -36,6 +37,9 @@ app.set("views", "./src/views");
 
 //import all required routes
 const authRoutes = require("./src/routes/auth");
+const userRoutes = require("./src/routes/user");
+const serviceRoutes = require("./src/routes/service");
+const pricingRoutes = require("./src/routes/pricing");
 const errorHandler = require("./src/middleware/errorHandler");
 
 //importing all view routes
@@ -47,6 +51,9 @@ const swaggerDocument = yaml.load(swaggerFile);
 
 //using imported routes
 app.use(process.env.ROUTE_PREFIX, authRoutes);
+app.use(process.env.ROUTE_PREFIX, userRoutes);
+app.use(process.env.ROUTE_PREFIX, serviceRoutes);
+app.use(process.env.ROUTE_PREFIX, pricingRoutes);
 
 // Serve Swagger documentation at /api/docs
 app.use(process.env.API_DOCS_ROUTE_PREFIX, swaggerUi.serve);
@@ -57,7 +64,7 @@ app.use(viewRoutes);
 
 // Middleware to handle 404 errors
 app.use((req, res, next) => {
-	res.status(404).render("404", { title: "Wild Stars - Page Not Found" });
+	res.status(404).render("404", { title: "ServeHub - Page Not Found" });
 });
 
 // Use the errorHandler middleware
