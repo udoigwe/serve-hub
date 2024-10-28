@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <%- include('./partials/head') %>
+</head>
+
+<body onload="notLoggedInCheck(); activateLinks(); notifications();">
+
+    <%- include('./partials/loader') %>
+
+        <%- include('./partials/topbar') %>
+
+            <!--  BEGIN NAVBAR  -->
+            <div class="sub-header-container">
+                <header class="header navbar navbar-expand-sm">
+                    <a href="javascript:void(0);" class="sidebarCollapse" data-placement="bottom"><svg
+                            xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                            class="feather feather-menu">
+                            <line x1="3" y1="12" x2="21" y2="12"></line>
+                            <line x1="3" y1="6" x2="21" y2="6"></line>
+                            <line x1="3" y1="18" x2="21" y2="18"></line>
+                        </svg></a>
+
+                    <ul class="navbar-nav flex-row">
+                        <li>
+                            <div class="page-header">
+
+                                <nav class="breadcrumb-one" aria-label="breadcrumb">
+                                    <ol class="breadcrumb">
+                                        <li class="breadcrumb-item"><a href="/admin/dashboard">Home</a></li>
+                                        <li class="breadcrumb-item active" aria-current="page"><span>Users</span></li>
+                                    </ol>
+                                </nav>
+
+                            </div>
+                        </li>
+                    </ul>
+                </header>
+            </div>
+            <!--  END NAVBAR  -->
+
+            <!--  BEGIN MAIN CONTAINER  -->
+            <div class="main-container" id="container">
+
+                <div class="overlay"></div>
+                <div class="search-overlay"></div>
+
+                <%- include('./partials/sidebar') %>
+
+                    <!--  BEGIN CONTENT AREA  -->
+                    <div id="content" class="main-content">
+                        <div class="layout-px-spacing">
+
+                            <div class="row super-admin">
+                                <div id="flStackForm" class="col-lg-12 layout-spacing layout-top-spacing">
+                                    <div class="statbox widget box box-shadow">
+                                        <div class="widget-header">
+                                            <div class="row">
+                                                <div class="col-xl-12 col-md-12 col-sm-12 col-12">
+                                                    <h4>New User</h4>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="widget-content widget-content-area">
+                                            <form id="new-user" enctype="multipart/form-data">
+                                                <div class="form-row mb-4">
+                                                    <div class="form-group col-md-4">
+                                                        <label for="user_name">User Full Name <span
+                                                                class="red-asteriks">*</span></label>
+                                                        <input type="text" class="form-control required user_full_name"
+                                                            name="user_full_name" placeholder="User Full Name">
+                                                    </div>
+                                                    <div class="form-group col-md-4">
+                                                        <label for="user_email">Email Address <span
+                                                                class="red-asteriks">*</span></label>
+                                                        <input type="email" class="form-control required user_email"
+                                                            name="user_email" placeholder="Email Address">
+                                                    </div>
+                                                    <div class="form-group col-md-4">
+                                                        <label for="user_phone">User Phone Number <span
+                                                                class="red-asteriks">*</span></label>
+                                                        <input type="text" class="form-control required user_phone"
+                                                            name="user_phone" placeholder="Phone Number">
+                                                    </div>
+                                                </div>
+                                                <div class="form-row mb-4">
+                                                    <div class="form-group col-md-4">
+                                                        <label for="user_password">Password <span
+                                                                class="red-asteriks">*</span></label>
+                                                        <input type="password"
+                                                            class="form-control required user_password"
+                                                            name="user_password" placeholder="password">
+                                                    </div>
+                                                    <div class="form-group col-md-4">
+                                                        <label for="re-password">Confirm Password <span
+                                                                class="red-asteriks">*</span></label>
+                                                        <input type="password" class="form-control required re-password"
+                                                            placeholder="Confirm Password">
+                                                    </div>
+                                                    <div class="form-group col-md-4">
+                                                        <label for="user_category">User Category <span
+                                                                class="red-asteriks">*</span></label>
+                                                        <select class="selectpicker form-control required user_category"
+                                                            name="user_category">
+                                                            <option value="">Please Select</option>
+                                                            <option value="Admin">Admin</option>
+                                                            <option value="Customer">Customer</option>
+                                                            <option value="Service Provider">Service Provider</option>
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                                <div class="form-row mb-4">
+                                                    <div class="form-group col-md-4">
+                                                        <label for="user_fb_url">Facebook URL</label>
+                                                        <input type="text"
+                                                            class="form-control user_fb_url"
+                                                            name="user_fb_url" placeholder="Facebook Profile URL">
+                                                    </div>
+                                                    <div class="form-group col-md-4">
+                                                        <label for="user_instagram_url">Instagram URL</label>
+                                                        <input type="text" class="form-control user_instagram_url" name="user_instagram_url"
+                                                            placeholder="Instagram Profile URL">
+                                                    </div>
+                                                    <div class="form-group col-md-4">
+                                                        <label for="user_x_url">X URL</label>
+                                                        <input type="text" class="form-control user_x_url" name="user_x_url"
+                                                            placeholder="X Profile URL">
+                                                    </div>
+                                                </div>
+                                                <div class="form-row mb-4">
+                                                    <div class="form-group col-md-4">
+                                                        <label for="user_whatsapp_url">Whatsapp URL</label>
+                                                        <input type="text"
+                                                            class="form-control user_whatsapp_url"
+                                                            name="user_whatsapp_url" placeholder="Whatsapp Profile URL">
+                                                    </div>
+                                                    <div class="form-group col-md-4">
+                                                        <label for="user_youtube_url">Youtube URL</label>
+                                                        <input type="text" class="form-control user_youtube_url" name="user_youtube_url"
+                                                            placeholder="Youtube Profile URL">
+                                                    </div>
+                                                    <div class="form-group col-md-4">
+                                                        <label for="user_linkedin_url">LinkedIn URL</label>
+                                                        <input type="text" class="form-control user_linkedin_url" name="user_linkedin_url"
+                                                            placeholder="LinkedIn Profile URL">
+                                                    </div>
+                                                </div>
+                                                <div class="form-row mb-4">
+                                                    <div class="form-group col-md-6">
+                                                        <label for="user_avatar">User Avatar <span class="red-asteriks">*</span></label>
+                                                        <input type="file"
+                                                            class="form-control required user_avatar"
+                                                            name="user_avatar">
+                                                    </div>
+                                                    <div class="form-group col-md-6">
+                                                        <label for="certificate_of_incoporation">Certificate Of Incoporation (Required if User is a Service Provider)</label>
+                                                        <input type="file" class="form-control certificate_of_incoporation" name="certificate_of_incoporation">
+                                                    </div>
+                                                </div>
+                                                <button type="submit" class="btn btn-primary mt-3">Add new user</button>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row layout-top-spacing super-admin">
+
+                                <div class="col-xl-12 col-lg-12 col-sm-12  layout-spacing">
+                                    <div class="statbox widget box box-shadow">
+                                        <div class="widget-header">
+                                            <div class="row">
+                                                <div class="col-xl-12 col-md-12 col-sm-12 col-12">
+                                                    <h4>Registered Users</h4>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="widget-content widget-content-area br-6">
+                                        <div class="table-responsive mb-4 mt-4">
+                                            <table id="users" class="table table-hover" style="width:100%">
+                                                <thead>
+                                                    <tr>
+                                                        <th>#</th>
+                                                        <th>Avatar</th>
+                                                        <th>User Full Name</th>
+                                                        <th>Email</th>
+                                                        <th>Phone</th>
+                                                        <th>Category</th>
+                                                        <th>Created At</th>
+                                                        <th>Account Status</th>
+                                                        <th>Actions</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody></tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- edit Modal -->
+                            <div class="modal animated zoomInUp custo-zoomInUp" id="editModal" tabindex="-1"
+                                role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+                                <div class="modal-dialog modal-dialog-centered modal-xl" role="document">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h5 class="modal-title" id="exampleModalCenterTitle">Edit User</h5>
+                                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                                <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24"
+                                                    height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                                    stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                                                    class="feather feather-x">
+                                                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                                                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                                                </svg>
+                                            </button>
+                                        </div>
+                                        <div class="modal-body">
+                                            <form class="form-vertical" id="updateUser" enctype="multipart/form-data">
+                                                <div class="form-row mb-4">
+                                                    <div class="form-group col-md-4">
+                                                        <label for="user_name">User Full Name <span class="red-asteriks">*</span></label>
+                                                        <input type="text" class="form-control required user_full_name" name="user_full_name"
+                                                            placeholder="User Full Name">
+                                                    </div>
+                                                    <div class="form-group col-md-4">
+                                                        <label for="user_email">Email Address <span class="red-asteriks">*</span></label>
+                                                        <input type="email" class="form-control required user_email" name="user_email" placeholder="Email Address">
+                                                    </div>
+                                                    <div class="form-group col-md-4">
+                                                        <label for="user_phone">User Phone Number <span class="red-asteriks">*</span></label>
+                                                        <input type="text" class="form-control required user_phone" name="user_phone" placeholder="Phone Number">
+                                                    </div>
+                                                </div>
+                                                <div class="form-row mb-4">
+                                                    <div class="form-group col-md-6">
+                                                        <label for="user_status">User Status <span class="red-asteriks">*</span></label>
+                                                        <select class="selectpicker form-control required user_status" name="user_status">
+                                                            <option value="">Please Select</option>
+                                                            <option value="Active">Active</option>
+                                                            <option value="Inactive">Inactive</option>
+                                                        </select>
+                                                    </div>
+                                                    <div class="form-group col-md-6">
+                                                        <label for="user_category">User Category <span class="red-asteriks">*</span></label>
+                                                        <select class="selectpicker form-control required user_category" name="user_category">
+                                                            <option value="">Please Select</option>
+                                                            <option value="Admin">Admin</option>
+                                                            <option value="Customer">Customer</option>
+                                                            <option value="Service Provider">Service Provider</option>
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                                <div class="form-row mb-4">
+                                                    <div class="form-group col-md-4">
+                                                        <label for="user_fb_url">Facebook URL</label>
+                                                        <input type="text" class="form-control user_fb_url" name="user_fb_url" placeholder="Facebook Profile URL">
+                                                    </div>
+                                                    <div class="form-group col-md-4">
+                                                        <label for="user_instagram_url">Instagram URL</label>
+                                                        <input type="text" class="form-control user_instagram_url" name="user_instagram_url"
+                                                            placeholder="Instagram Profile URL">
+                                                    </div>
+                                                    <div class="form-group col-md-4">
+                                                        <label for="user_x_url">X URL</label>
+                                                        <input type="text" class="form-control user_x_url" name="user_x_url" placeholder="X Profile URL">
+                                                    </div>
+                                                </div>
+                                                <div class="form-row mb-4">
+                                                    <div class="form-group col-md-4">
+                                                        <label for="user_whatsapp_url">Whatsapp URL</label>
+                                                        <input type="text" class="form-control user_whatsapp_url" name="user_whatsapp_url"
+                                                            placeholder="Whatsapp Profile URL">
+                                                    </div>
+                                                    <div class="form-group col-md-4">
+                                                        <label for="user_youtube_url">Youtube URL</label>
+                                                        <input type="text" class="form-control user_youtube_url" name="user_youtube_url"
+                                                            placeholder="Youtube Profile URL">
+                                                    </div>
+                                                    <div class="form-group col-md-4">
+                                                        <label for="user_linkedin_url">LinkedIn URL</label>
+                                                        <input type="text" class="form-control user_linkedin_url" name="user_linkedin_url"
+                                                            placeholder="LinkedIn Profile URL">
+                                                    </div>
+                                                </div>
+                                                <div class="form-row mb-4">
+                                                    <div class="form-group col-md-6">
+                                                        <label for="user_avatar">User Avatar</label>
+                                                        <input type="file" class="form-control user_avatar" name="user_avatar">
+                                                    </div>
+                                                    <div class="form-group col-md-6">
+                                                        <label for="certificate_of_incoporation">Certificate Of Incoporation (Required if User is a Service
+                                                            Provider)</label>
+                                                        <input type="file" class="form-control certificate_of_incoporation" name="certificate_of_incoporation">
+                                                    </div>
+                                                </div>
+                                                <input type="hidden" name="user_id" class="required user_id" />
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button class="btn" data-dismiss="modal"><i class="flaticon-cancel-12"></i>
+                                                Discard</button>
+                                            <button type="submit" class="btn btn-primary">Update User</button>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <%- include('./partials/footer') %>
+                    </div>
+                    <!--  END CONTENT AREA  -->
+            </div>
+            <!-- END MAIN CONTAINER -->
+
+
+
+            <!-- BEGIN GLOBAL MANDATORY SCRIPTS -->
+            <%- include('./partials/scripts') %>
+                <!-- PAGE SCRIPT -->
+                <script src="/admin-assets/assets/js/admin/users.js"></script>
+</body>
+
+</html>

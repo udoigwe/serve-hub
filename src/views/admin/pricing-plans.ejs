@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <%- include('./partials/head') %>
+</head>
+
+<body onload="notLoggedInCheck(); activateLinks(); notifications();">
+
+    <%- include('./partials/loader') %>
+
+        <%- include('./partials/topbar') %>
+
+            <!--  BEGIN NAVBAR  -->
+            <div class="sub-header-container">
+                <header class="header navbar navbar-expand-sm">
+                    <a href="javascript:void(0);" class="sidebarCollapse" data-placement="bottom"><svg
+                            xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                            class="feather feather-menu">
+                            <line x1="3" y1="12" x2="21" y2="12"></line>
+                            <line x1="3" y1="6" x2="21" y2="6"></line>
+                            <line x1="3" y1="18" x2="21" y2="18"></line>
+                        </svg></a>
+
+                    <ul class="navbar-nav flex-row">
+                        <li>
+                            <div class="page-header">
+
+                                <nav class="breadcrumb-one" aria-label="breadcrumb">
+                                    <ol class="breadcrumb">
+                                        <li class="breadcrumb-item"><a href="dashboard">Home</a></li>
+                                        <li class="breadcrumb-item active" aria-current="page"><span>Pricing Plans</span></li>
+                                    </ol>
+                                </nav>
+
+                            </div>
+                        </li>
+                    </ul>
+                </header>
+            </div>
+            <!--  END NAVBAR  -->
+
+            <!--  BEGIN MAIN CONTAINER  -->
+            <div class="main-container" id="container">
+
+                <div class="overlay"></div>
+                <div class="search-overlay"></div>
+
+                <%- include('./partials/sidebar') %>
+
+                    <!--  BEGIN CONTENT AREA  -->
+                    <div id="content" class="main-content">
+                        <div class="layout-px-spacing">
+
+                            <div class="row super-admin">
+                                <div id="flStackForm" class="col-lg-12 layout-spacing layout-top-spacing">
+                                    <div class="statbox widget box box-shadow">
+                                        <div class="widget-header">
+                                            <div class="row">
+                                                <div class="col-xl-12 col-md-12 col-sm-12 col-12">
+                                                    <h4>New Pricing Plan</h4>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="widget-content widget-content-area">
+                                            <form id="new-pricing-plan" enctype="multipart/form-data">
+                                                <div class="form-row mb-4">
+                                                    <div class="form-group col-md-4">
+                                                        <label for="service_category">Plan Title
+                                                            <span class="red-asteriks">*</span>
+                                                        </label>
+                                                        <input type="text" class="form-control required subscription_plan_title"
+                                                            name="subscription_plan_title" placeholder="Plan Title">
+                                                    </div>
+                                                    <div class="form-group col-md-4">
+                                                        <label for="duration">Duration
+                                                            <span class="red-asteriks">*</span>
+                                                        </label>
+                                                        <input type="text" class="form-control required duration"
+                                                            name="duration" placeholder="Duration in Seconds">
+                                                    </div>
+                                                    <div class="form-group col-md-4">
+                                                        <label for="no_of_services">Number Of Services
+                                                            <span class="red-asteriks">*</span>
+                                                        </label>
+                                                        <input type="text" class="form-control required no_of_services"
+                                                            name="no_of_services" placeholder="Number of Services">
+                                                    </div>
+                                                </div>
+                                                <div class="form-row mb-4">
+                                                    <div class="form-group col-md-6">
+                                                        <label for="no_of_images_per_service">Number Of Images
+                                                            <span class="red-asteriks">*</span>
+                                                        </label>
+                                                        <input type="text" class="form-control required no_of_images_per_service"
+                                                            name="no_of_images_per_service" placeholder="Number of Images per service listing">
+                                                    </div>
+                                                    <div class="form-group col-md-6">
+                                                        <label for="is_featured">Is Featured <span class="red-asteriks">*</span></label>
+                                                        <select class="selectpicker form-control is_featured required" name="is_featured">
+                                                            <option value="">Please select</option>
+                                                            <option value="Yes">Yes</option>
+                                                            <option value="No">No</option>
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                                <div class="form-row mb-4">
+                                                    <div class="form-group col-md-6">
+                                                        <label for="price">Price
+                                                            <span class="red-asteriks">*</span>
+                                                        </label>
+                                                        <input type="text" class="form-control required price" name="price"
+                                                            placeholder="Price in digits only">
+                                                    </div>
+                                                    <div class="form-group col-md-6">
+                                                        <label for="service_charge">Service Charge
+                                                            <span class="red-asteriks">*</span>
+                                                        </label>
+                                                        <input type="text" class="form-control required service_charge" name="service_charge"
+                                                            placeholder="Percentage of sales going back to company">
+                                                    </div>
+                                                </div>
+                                                <button type="submit" class="btn btn-primary mt-3">Add New
+                                                    Subscription Plan</button>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row layout-top-spacing super-admin">
+
+                                <div class="col-xl-12 col-lg-12 col-sm-12  layout-spacing">
+                                    <div class="statbox widget box box-shadow">
+                                        <div class="widget-header">
+                                            <div class="row">
+                                                <div class="col-xl-12 col-md-12 col-sm-12 col-12">
+                                                    <h4>Subscription Plans</h4>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="widget-content widget-content-area br-6">
+                                        <div class="table-responsive mb-4 mt-4">
+                                            <table id="pricing-plans" class="table table-hover" style="width:100%">
+                                                <thead>
+                                                    <tr>
+                                                        <th>#</th>
+                                                        <th>Plan Title</th>
+                                                        <th>Duration (seconds)</th>
+                                                        <th>Number Of Services</th>
+                                                        <th>Number Of Images Per Service</th>
+                                                        <th>Is Featured</th>
+                                                        <th>Price</th>
+                                                        <th>Service Charge</th>
+                                                        <th>Plan Status</th>
+                                                        <th>Created At</th>
+                                                        <th>Actions</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody></tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- edit Modal -->
+                            <div class="modal animated zoomInUp custo-zoomInUp" id="editModal" tabindex="-1"
+                                role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+                                <div class="modal-dialog modal-dialog-centered modal-xl" role="document">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h5 class="modal-title" id="exampleModalCenterTitle">Edit Service Category
+                                            </h5>
+                                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                                <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24"
+                                                    height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                                    stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                                                    class="feather feather-x">
+                                                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                                                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                                                </svg>
+                                            </button>
+                                        </div>
+                                        <div class="modal-body">
+                                            <form class="form-vertical" id="update-plan">
+                                                <div class="form-row mb-4">
+                                                    <div class="form-group col-md-4">
+                                                        <label for="subscription_plan_title">Plan Title
+                                                            <span class="red-asteriks">*</span>
+                                                        </label>
+                                                        <input type="text" class="form-control required subscription_plan_title" name="subscription_plan_title"
+                                                            placeholder="Plan Title">
+                                                    </div>
+                                                    <div class="form-group col-md-4">
+                                                        <label for="duration">Duration
+                                                            <span class="red-asteriks">*</span>
+                                                        </label>
+                                                        <input type="text" class="form-control required duration" name="duration" placeholder="Duration in Seconds">
+                                                    </div>
+                                                    <div class="form-group col-md-4">
+                                                        <label for="no_of_services">Number Of Services
+                                                            <span class="red-asteriks">*</span>
+                                                        </label>
+                                                        <input type="text" class="form-control required no_of_services" name="no_of_services"
+                                                            placeholder="Number of Services">
+                                                    </div>
+                                                </div>
+                                                <div class="form-row mb-4">
+                                                    <div class="form-group col-md-6">
+                                                        <label for="no_of_images_per_service">Number Of Images
+                                                            <span class="red-asteriks">*</span>
+                                                        </label>
+                                                        <input type="text" class="form-control required no_of_images_per_service" name="no_of_images_per_service"
+                                                            placeholder="Number of Images per service listing">
+                                                    </div>
+                                                    <div class="form-group col-md-6">
+                                                        <label for="is_featured">Is Featured <span class="red-asteriks">*</span></label>
+                                                        <select class="selectpicker form-control is_featured required" name="is_featured">
+                                                            <option value="">Please select</option>
+                                                            <option value="Yes">Yes</option>
+                                                            <option value="No">No</option>
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                                <div class="form-row mb-4">
+                                                    <div class="form-group col-md-4">
+                                                        <label for="price">Price
+                                                            <span class="red-asteriks">*</span>
+                                                        </label>
+                                                        <input type="text" class="form-control required price" name="price" placeholder="Price in digits only">
+                                                    </div>
+                                                    <div class="form-group col-md-4">
+                                                        <label for="service_charge">Service Charge
+                                                            <span class="red-asteriks">*</span>
+                                                        </label>
+                                                        <input type="text" class="form-control required service_charge" name="service_charge"
+                                                            placeholder="Percentage of sales going back to company">
+                                                    </div>
+                                                    <div class="form-group col-md-4">
+                                                        <label for="subscription_plan_status">Plan Status <span class="red-asteriks">*</span></label>
+                                                        <select class="selectpicker form-control subscription_plan_status required" name="subscription_plan_status">
+                                                            <option value="">Please select</option>
+                                                            <option value="Active">Active</option>
+                                                            <option value="Inactive">Inactive</option>
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                                <input type="hidden" name="subscription_plan_id" class="required subscription_plan_id" />
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button class="btn" data-dismiss="modal"><i class="flaticon-cancel-12"></i>
+                                                Discard</button>
+                                            <button type="submit" class="btn btn-primary">Update Plan</button>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+                        <%- include('./partials/footer') %>
+                    </div>
+                    <!--  END CONTENT AREA  -->
+            </div>
+            <!-- END MAIN CONTAINER -->
+
+
+
+            <!-- BEGIN GLOBAL MANDATORY SCRIPTS -->
+            <%- include('./partials/scripts') %>
+                <script src="/admin-assets/assets/js/admin/pricing-plans.js"></script>
+</body>
+
+</html>

@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <%- include('./partials/head') %>
+
+        <link href="/admin-assets/assets/css/authentication/form-2.css" rel="stylesheet" type="text/css" />
+        <!-- Button loaders -->
+        <link rel="stylesheet" type="text/css" href="/admin-assets/assets/css/loading.css" />
+        <link rel="stylesheet" type="text/css" href="/admin-assets/assets/css/loading-btn.css" />
+        <link rel="stylesheet" type="text/css" href="/admin-assets/assets/css/forms/theme-checkbox-radio.css">
+        <link rel="stylesheet" type="text/css" href="/admin-assets/assets/css/forms/switches.css">
+
+        <style type="text/css">
+            .simpleslide100 {
+                display: block;
+                position: fixed;
+                z-index: 0;
+                width: 100%;
+                height: 100%;
+                top: 0;
+                left: 0;
+            }
+
+            .simpleslide100-item {
+                display: block;
+                position: absolute;
+                width: 100%;
+                height: 100%;
+                top: 0;
+                left: 0;
+            }
+
+            .bg0 {
+                background-color: #fff;
+            }
+
+            .bg-img1 {
+                background-position: center;
+                background-repeat: no-repeat;
+                background-size: cover;
+            }
+
+            .overlay1 {
+                position: relative;
+                z-index: 1;
+            }
+
+            .overlay1::before {
+                content: "";
+                display: block;
+                position: fixed;
+                z-index: -1;
+                width: 100%;
+                height: 100%;
+                top: 0;
+                left: 0;
+                background-color: rgba(0, 0, 0, 0.9);
+            }
+
+            .svg-icon {
+                width: 1em;
+                height: 1em;
+            }
+
+            .svg-icon path,
+            .svg-icon polygon,
+            .svg-icon rect {
+                fill: #4691f6;
+            }
+
+            .svg-icon circle {
+                stroke: #4691f6;
+                stroke-width: 1;
+            }
+        </style>
+</head>
+
+<body class="form">
+    <div class="simpleslide100">
+        <div class="simpleslide100-item bg-img1" style="background-image: url('/assets/img/banner.png');">
+        </div>
+        <div class="simpleslide100-item bg-img1" style="background-image: url('/assets/img/blog-details.jpg');">
+        </div>
+        <div class="simpleslide100-item bg-img1" style="background-image: url('/assets/img/banner-02.jpg');">
+        </div>
+    </div>
+
+
+    <div class="form-container outer overlay1">
+        <div class="form-form">
+            <div class="form-form-wrap">
+                <div class="form-container">
+                    <div class="form-content">
+                        <img src="/assets/img/serve-hub-favicon.png" height="" width="150" alt="Serve Hub LOGO">
+                        <br><br>
+                        <form class="text-left" id="login">
+                            <div class="form">
+                                <div id="email-field" class="field-wrapper input">
+                                    <label for="email">EMAIL</label>
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                        stroke-linejoin="round" class="feather feather-at-sign register">
+                                        <circle cx="12" cy="12" r="4"></circle>
+                                        <path d="M16 8v5a3 3 0 0 0 6 0v-1a10 10 0 1 0-3.92 7.94"></path>
+                                    </svg>
+                                    <input id="email" name="email" type="text" value="" class="form-control required"
+                                        required placeholder="Email">
+                                </div>
+                                <div id="password-field" class="field-wrapper input mb-2">
+                                    <div class="d-flex justify-content-between">
+                                        <label for="password">PASSWORD</label>
+                                        <a href="#" class="forgot-pass-link">Forgot Password?</a>
+                                    </div>
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                        stroke-linejoin="round" class="feather feather-lock">
+                                        <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                                        <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+                                    </svg>
+                                    <input id="password" name="password" type="password" class="form-control required"
+                                        required placeholder="Password">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                        stroke-linejoin="round" id="toggle-password" class="feather feather-eye">
+                                        <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                                        <circle cx="12" cy="12" r="3"></circle>
+                                    </svg>
+                                </div>
+                                <div class="field-wrapper terms_condition">
+                                    <div class="n-chk">
+                                        <label class="new-control new-checkbox checkbox-primary">
+                                            <input type="checkbox" class="new-control-input" id="remember-me">
+                                            <span class="new-control-indicator"></span><span>Remember Me</span>
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="d-sm-flex justify-content-between">
+                                    <div class="field-wrapper">
+                                        <button type="submit" class="btn btn-primary ld-ext-right" id="submit">
+                                            <span id="btn-text">Sign In!</span>
+                                            <div class="ld ld-ball ld-flip"></div>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- BEGIN GLOBAL MANDATORY SCRIPTS -->
+    <%- include('./partials/scripts') %>
+        <!-- PAGE SCRIPT -->
+        <script src="/admin-assets/assets/js/login.js"></script>
+</body>
+
+</html>

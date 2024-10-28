@@ -163,7 +163,7 @@ module.exports = {
 			const [users] = await connection.execute(query, queryParams);
 
 			if (users.length === 0) {
-				throw new Error("Invalid credentials");
+				throw new CustomError(400, "Invalid credentials");
 			}
 
 			const user = users[0];
@@ -177,11 +177,12 @@ module.exports = {
 			);
 
 			if (decryptedPasswordToString !== password) {
-				throw new Error("Invalid credentials");
+				throw new CustomError(400, "Invalid credentials");
 			}
 
 			if (user.user_status === "Inactive") {
-				throw new Error(
+				throw new CustomError(
+					400,
 					"Sorry!!! Your account is currently inactive. Please contact administrator"
 				);
 			}

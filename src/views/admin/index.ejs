@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <%- include('./partials/head') %>
+
+    <link href="/admin-assets/assets/css/authentication/form-2.css" rel="stylesheet" type="text/css" />
+    <!-- Button loaders -->
+    <link rel="stylesheet" type="text/css" href="/admin-assets/assets/css/loading.css" />
+    <link rel="stylesheet" type="text/css" href="/admin-assets/assets/css/loading-btn.css" />
+    <link rel="stylesheet" type="text/css" href="/admin-assets/assets/css/forms/theme-checkbox-radio.css">
+    <link rel="stylesheet" type="text/css" href="/admin-assets/assets/css/forms/switches.css">
+
+    <style type="text/css">
+        .simpleslide100 {
+            display: block;
+            position: fixed;
+            z-index: 0;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+        }
+
+        .simpleslide100-item {
+            display: block;
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+        }
+
+        .bg0 {
+            background-color: #fff;
+        }
+
+        .bg-img1 {
+            background-position: center;
+            background-repeat: no-repeat;
+            background-size: cover;
+        }
+
+        .overlay1 {
+            position: relative;
+            z-index: 1;
+        }
+
+        .overlay1::before {
+            content: "";
+            display: block;
+            position: fixed;
+            z-index: -1;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            background-color: rgba(0, 0, 0, 0.9);
+        }
+
+        .svg-icon {
+            width: 1em;
+            height: 1em;
+        }
+
+        .svg-icon path,
+        .svg-icon polygon,
+        .svg-icon rect {
+            fill: #4691f6;
+        }
+
+        .svg-icon circle {
+            stroke: #4691f6;
+            stroke-width: 1;
+        }
+    </style>
+</head>
+
+<body class="form">
+    <div class="simpleslide100">
+        <div class="simpleslide100-item bg-img1" style="background-image: url('/assets/img/banner.png');">
+        </div>
+        <div class="simpleslide100-item bg-img1" style="background-image: url('/assets/img/blog-details.jpg');">
+        </div>
+        <div class="simpleslide100-item bg-img1" style="background-image: url('/assets/img/banner-02.jpg');">
+        </div>
+    </div>
+
+    <div class="form-container outer overlay1">
+        <div class="form-form">
+            <div class="form-form-wrap">
+                <div class="form-container">
+                    <div class="form-content">
+                        <img src="/assets/img/serve-hub-favicon.png" height="" width="200" alt="ServeHub LOGO">
+                        <br><br>
+                        <p class="signup-link register">What Do You Want To Do? <a href="/admin/sign-in">Login</a></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- BEGIN GLOBAL MANDATORY SCRIPTS -->
+    <%- include('./partials/scripts') %>
+        <script src="/admin-assets/assets/js/index.js"></script>
+</body>
+
+</html>
