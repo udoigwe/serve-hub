@@ -162,13 +162,13 @@ $(function () {
 
 			if (userCategory === "Admin") {
 				$(".dashboard-link").html(`
-					<a class="nav-link" href="/admin">
+					<a class="nav-link" href="/admin/dashboard">
 						My Dashboard
 					</a>
 				`);
 			}
 
-			if (userCategory === "Admin") {
+			if (userCategory === "Customer") {
 				$(".dashboard-link").remove();
 			}
 		}
