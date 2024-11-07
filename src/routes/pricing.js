@@ -11,6 +11,11 @@ router.post(
 	pricingController.createPricingPlan
 );
 router.get(
+	"/pricing",
+	checkAuth.verifyToken,
+	pricingController.getPricingPlans
+);
+router.get(
 	"/pricing/datatable/fetch",
 	checkAuth.isAdminCheck,
 	pricingController.getPlansForDataTable

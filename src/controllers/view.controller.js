@@ -26,4 +26,16 @@ module.exports = {
 			title: "Serve Hub - Pricing Plans",
 		});
 	},
+
+	/* PROVIDER */
+	providerServices: async (req, res) => {
+		res.render("provider/services", {
+			title: "Serve Hub - Provider Services",
+		});
+	},
+	providerPlan: async (req, res) => {
+		res.render("provider/plan", {
+			title: "Serve Hub - Plan & Billings",
+		});
+	},
 };

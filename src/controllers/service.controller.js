@@ -3,7 +3,12 @@ const moment = require("moment");
 const CustomError = require("../utils/CustomError");
 const fs = require("fs").promises;
 const sharp = require("sharp");
-const { slugify, fileExists } = require("../utils/functions");
+const {
+	slugify,
+	fileExists,
+	getNewFileName,
+	uuidv4,
+} = require("../utils/functions");
 
 module.exports = {
 	createServiceCategory: async (req, res, next) => {
@@ -369,6 +374,83 @@ module.exports = {
 			connection ? connection.release() : null;
 		}
 	},
+	getServiceCategories: async (req, res, next) => {
+		const { service_category_status } = req.query;
+
+		const page = req.query.page ? parseInt(req.query.page) : null;
+		const perPage = req.query.perPage ? parseInt(req.query.perPage) : null;
+
+		let connection;
+
+		let query = `
+            SELECT *
+            FROM service_categories
+            WHERE 1 = 1
+        `;
+		const queryParams = [];
+
+		let query2 = `
+            SELECT COUNT(*) AS total_records 
+            FROM service_categories
+            WHERE 1 = 1
+        `;
+		const queryParams2 = [];
+
+		if (service_category_status) {
+			query += " AND service_category_status = ?";
+			queryParams.push(service_category_status);
+
+			query2 += " AND service_category_status = ?";
+			queryParams2.push(service_category_status);
+		}
+
+		query += ` ORDER BY service_category_id DESC`;
+
+		if (page && perPage) {
+			const offset = (page - 1) * perPage;
+			query += ` LIMIT ?, ?`;
+			queryParams.push(offset);
+			queryParams.push(perPage);
+		}
+
+		try {
+			// Get a connection from the pool
+			connection = await pool.getConnection();
+
+			const [data] = await connection.execute(query, queryParams);
+			const [total] = await connection.execute(query2, queryParams2);
+
+			//total records
+			const totalRecords = parseInt(total[0].total_records);
+
+			// Calculate total pages if perPage is specified
+			const totalPages = perPage
+				? Math.ceil(totalRecords / perPage)
+				: null;
+
+			// Calculate next and previous pages based on provided page and totalPages
+			const nextPage =
+				page && totalPages && page < totalPages ? page + 1 : null;
+			const prevPage = page && page > 1 ? page - 1 : null;
+
+			res.json({
+				error: false,
+				data,
+				paginationData: {
+					totalRecords,
+					totalPages,
+					currentPage: page,
+					itemsPerPage: perPage,
+					nextPage,
+					prevPage,
+				},
+			});
+		} catch (e) {
+			next(e);
+		} finally {
+			connection ? connection.release() : null;
+		}
+	},
 	getServiceCategory: async (req, res, next) => {
 		const { service_category_id } = req.params;
 
@@ -395,6 +477,569 @@ module.exports = {
 			res.json({
 				error: false,
 				category: categories[0],
+			});
+		} catch (e) {
+			next(e);
+		} finally {
+			connection ? connection.release() : null;
+		}
+	},
+	createNewService: async (req, res, next) => {
+		const providerID = req.userDecodedData.user_id;
+		const {
+			service_category_id,
+			service_title,
+			service_price,
+			service_description,
+			service_address,
+		} = req.body;
+		const service_discount_rate = !req.body.service_discount_rate
+			? null
+			: req.body.service_discount_rate;
+		const service_location_y = !req.body.service_location_y
+			? null
+			: req.body.service_location_y;
+		const service_location_x = !req.body.service_location_x
+			? null
+			: req.body.service_location_x;
+		const service_youtube_video_url = !req.body.service_youtube_video_url
+			? null
+			: req.body.service_youtube_video_url;
+		const uploadPath = "public/uploads/service-gallery/";
+		let images = req.files.images;
+		const now = moment().format("YYYY-MM-DD HH:mm:ss");
+
+		let connection;
+
+		//fetch subscription details
+		let query = `
+			SELECT *
+			FROM subscription_view
+			WHERE subscriber_id = ?
+			ORDER BY subscription_id DESC
+			LIMIT 1
+		`;
+		const queryParams = [providerID];
+
+		//fetch number of services with the current subscription plan ID
+		let query2 = `
+			SELECT COUNT(*) AS service_count
+			FROM service_view
+			WHERE subscriber_id = ${providerID}
+			AND subscription_plan_id = ?
+		`;
+		const queryParams2 = [];
+
+		try {
+			// Get a connection from the pool
+			connection = await pool.getConnection();
+
+			//start db transaction
+			await connection.beginTransaction();
+
+			//check subscription details
+			const [subscriptions] = await connection.execute(
+				query,
+				queryParams
+			);
+
+			if (subscriptions.length === 0) {
+				throw new CustomError(
+					404,
+					"You do not have any active subscription to post this service"
+				);
+			}
+
+			const subscription = subscriptions[0];
+			const serviceSlug = slugify(service_title);
+			queryParams2.push(subscription.subscription_plan_id);
+
+			const [services] = await connection.execute(query2, queryParams2);
+
+			if (
+				parseInt(subscription.no_of_services) ===
+				parseInt(services[0].service_count)
+			) {
+				throw new CustomError(
+					400,
+					"Sorry!!! You have reached the limit your subscription plan can carry. Consider an upgrade."
+				);
+			}
+
+			if (!Array.isArray(images)) {
+				// If only one image is uploaded, wrap it in an array
+				images = [images];
+			}
+
+			if (
+				images.length >
+				parseInt(subscriptions[0].no_of_images_per_service)
+			) {
+				throw new CustomError(
+					400,
+					"Sorry!!! You have exceeded the limit of images your subscription plan can carry. Consider an upgrade."
+				);
+			}
+
+			//insert service into db
+			const [newService] = await connection.execute(
+				`
+				INSERT INTO services
+				(
+					subscription_id,
+					service_category_id,
+					service_title,
+					service_slug,
+					service_price,
+					service_discount_rate,
+					service_description,
+					service_address,
+					service_location_y,
+					service_location_x,
+					service_youtube_video_url,
+					service_created_at
+				) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+			`,
+				[
+					subscription.subscription_id,
+					service_category_id,
+					service_title,
+					serviceSlug,
+					service_price,
+					service_discount_rate,
+					service_description,
+					service_address,
+					service_location_y,
+					service_location_x,
+					service_youtube_video_url,
+					now,
+				]
+			);
+
+			const serviceID = newService.insertId;
+
+			//insert images into database
+			for (let i = 0; i < images.length; i++) {
+				const file = images[i];
+				const filePath = file.tempFilePath;
+				const newFileName = getNewFileName(file, `${uuidv4()}`);
+
+				//resize avatar image file and upload it
+				await sharp(filePath)
+					.resize({ height: 600, width: 600, fit: "cover" })
+					.toFile(uploadPath + newFileName);
+				//delete avatar temp file
+				//await fs.unlink(filePath);
+
+				//insert file reference into db
+				await connection.execute(
+					`
+                    INSERT INTO service_images
+                    (
+                        service_id,
+                        service_image_filename,
+                        service_image_mimetype,
+                        service_image_size,
+                        service_image_created_at
+                    ) VALUES (?, ?, ?, ?, ?)
+                `,
+					[serviceID, newFileName, file.mimetype, file.size, now]
+				);
+			}
+
+			//commit db transaction
+			await connection.commit();
+
+			res.json({
+				error: false,
+				message: `Service created successfully`,
+			});
+		} catch (e) {
+			connection ? connection.rollback() : null;
+			next(e);
+		} finally {
+			connection ? connection.release() : null;
+		}
+	},
+	getServices: async (req, res, next) => {
+		const {
+			service_category_id,
+			service_status,
+			subscription_plan_id,
+			subscriber_id,
+			is_featured,
+		} = req.query;
+
+		const page = req.query.page ? parseInt(req.query.page) : null;
+		const perPage = req.query.perPage ? parseInt(req.query.perPage) : null;
+
+		let connection;
+
+		let query = `
+            SELECT *
+            FROM service_view
+            WHERE 1 = 1
+        `;
+		const queryParams = [];
+
+		let query2 = `
+            SELECT COUNT(*) AS total_records 
+            FROM service_view
+            WHERE 1 = 1
+        `;
+		const queryParams2 = [];
+
+		if (service_category_id) {
+			query += " AND service_category_id = ?";
+			queryParams.push(service_category_id);
+
+			query2 += " AND service_category_id = ?";
+			queryParams2.push(service_category_id);
+		}
+		if (service_status) {
+			query += " AND service_status = ?";
+			queryParams.push(service_status);
+
+			query2 += " AND service_status = ?";
+			queryParams2.push(service_status);
+		}
+		if (subscription_plan_id) {
+			query += " AND subscription_plan_id = ?";
+			queryParams.push(subscription_plan_id);
+
+			query2 += " AND subscription_plan_id = ?";
+			queryParams2.push(subscription_plan_id);
+		}
+		if (subscriber_id) {
+			query += " AND subscriber_id = ?";
+			queryParams.push(subscriber_id);
+
+			query2 += " AND subscriber_id = ?";
+			queryParams2.push(subscriber_id);
+		}
+		if (is_featured) {
+			query += " AND is_featured = ?";
+			queryParams.push(is_featured);
+
+			query2 += " AND is_featured = ?";
+			queryParams2.push(is_featured);
+		}
+
+		query += ` ORDER BY service_id DESC`;
+
+		if (page && perPage) {
+			const offset = (page - 1) * perPage;
+			query += ` LIMIT ?, ?`;
+			queryParams.push(offset);
+			queryParams.push(perPage);
+		}
+
+		try {
+			// Get a connection from the pool
+			connection = await pool.getConnection();
+
+			const [data] = await connection.execute(query, queryParams);
+			const [total] = await connection.execute(query2, queryParams2);
+
+			//get uploaded images for each service
+			for (let i = 0; i < data.length; i++) {
+				const service = data[i];
+				const [images] = await connection.execute(
+					`
+                    SELECT *
+                    FROM service_images
+                    WHERE service_id = ?
+					AND service_image_status = 'Published'
+                `,
+					[service.service_id]
+				);
+				service.service_images = images;
+			}
+
+			//total records
+			const totalRecords = parseInt(total[0].total_records);
+
+			// Calculate total pages if perPage is specified
+			const totalPages = perPage
+				? Math.ceil(totalRecords / perPage)
+				: null;
+
+			// Calculate next and previous pages based on provided page and totalPages
+			const nextPage =
+				page && totalPages && page < totalPages ? page + 1 : null;
+			const prevPage = page && page > 1 ? page - 1 : null;
+
+			res.json({
+				error: false,
+				data,
+				paginationData: {
+					totalRecords,
+					totalPages,
+					currentPage: page,
+					itemsPerPage: perPage,
+					nextPage,
+					prevPage,
+				},
+			});
+		} catch (e) {
+			next(e);
+		} finally {
+			connection ? connection.release() : null;
+		}
+	},
+	getService: async (req, res, next) => {
+		const serviceID = req.params.service_id;
+
+		let connection;
+
+		let query = `
+            SELECT *
+            FROM service_view
+            WHERE service_id = ?
+			LIMIT 1
+        `;
+
+		try {
+			// Get a connection from the pool
+			connection = await pool.getConnection();
+
+			const [services] = await connection.execute(query, [serviceID]);
+
+			if (services.length === 0) {
+				throw new CustomError(400, "Service not found");
+			}
+
+			const service = services[0];
+			const [images] = await connection.execute(
+				`
+                    SELECT *
+                    FROM service_images
+                    WHERE service_id = ?
+					AND service_image_status = 'Published'
+                `,
+				[serviceID]
+			);
+			service.service_images = images;
+
+			res.json({
+				error: false,
+				service,
+			});
+		} catch (e) {
+			next(e);
+		} finally {
+			connection ? connection.release() : null;
+		}
+	},
+	updateService: async (req, res, next) => {
+		const providerID = req.userDecodedData.user_id;
+		const serviceID = req.params.service_id;
+		const {
+			service_category_id,
+			service_title,
+			service_price,
+			service_description,
+			service_address,
+			service_status,
+		} = req.body;
+		const service_discount_rate = !req.body.service_discount_rate
+			? null
+			: req.body.service_discount_rate;
+		const service_location_y = !req.body.service_location_y
+			? null
+			: req.body.service_location_y;
+		const service_location_x = !req.body.service_location_x
+			? null
+			: req.body.service_location_x;
+		const service_youtube_video_url = !req.body.service_youtube_video_url
+			? null
+			: req.body.service_youtube_video_url;
+		const uploadPath = "public/uploads/service-gallery/";
+		const now = moment().format("YYYY-MM-DD HH:mm:ss");
+		const Now = moment();
+
+		let connection;
+
+		//fetch subscription details
+		let query = `
+			SELECT *
+			FROM subscription_view
+			WHERE subscriber_id = ?
+			ORDER BY subscription_id DESC
+			LIMIT 1
+		`;
+		const queryParams = [providerID];
+
+		try {
+			// Get a connection from the pool
+			connection = await pool.getConnection();
+
+			//start db transaction
+			await connection.beginTransaction();
+
+			//check subscription details
+			const [subscriptions] = await connection.execute(
+				query,
+				queryParams
+			);
+
+			if (subscriptions.length === 0) {
+				throw new CustomError(
+					404,
+					"You do not have any active subscription to update this service"
+				);
+			}
+
+			const subscription = subscriptions[0];
+
+			//check if subscription is expired
+			if (Now.isAfter(moment(subscription.expires_at))) {
+				throw new CustomError(
+					400,
+					"Sorry!!! Your current subscription has expired. Please consider updgrading or resubscribing"
+				);
+			}
+			const serviceSlug = slugify(service_title);
+
+			//update service into db
+			await connection.execute(
+				`
+				UPDATE services
+				SET
+					service_category_id = ?,
+					service_title = ?,
+					service_slug = ?,
+					service_price = ?,
+					service_discount_rate = ?,
+					service_description = ?,
+					service_address = ?,
+					service_location_y = ?,
+					service_location_x = ?,
+					service_youtube_video_url = ?,
+					service_status = ?
+				WHERE service_id = ?
+			`,
+				[
+					service_category_id,
+					service_title,
+					serviceSlug,
+					service_price,
+					service_discount_rate,
+					service_description,
+					service_address,
+					service_location_y,
+					service_location_x,
+					service_youtube_video_url,
+					service_status,
+					serviceID,
+				]
+			);
+
+			if (req.files && req.files.images) {
+				let images = req.files.images;
+
+				if (!Array.isArray(images)) {
+					// If only one image is uploaded, wrap it in an array
+					images = [images];
+				}
+
+				if (
+					images.length >
+					parseInt(subscriptions[0].no_of_images_per_service)
+				) {
+					throw new CustomError(
+						400,
+						"Sorry!!! You have exceeded the limit of images your subscription plan can carry. Consider an upgrade."
+					);
+				}
+
+				//delete already existing images
+				await connection.execute(
+					`
+						DELETE FROM service_images WHERE service_id = ?
+					`,
+					[serviceID]
+				);
+
+				//insert images into database
+				for (let i = 0; i < images.length; i++) {
+					const file = images[i];
+					const filePath = file.tempFilePath;
+					const newFileName = getNewFileName(file, `${uuidv4()}`);
+
+					//resize avatar image file and upload it
+					await sharp(filePath)
+						.resize({ height: 600, width: 600, fit: "cover" })
+						.toFile(uploadPath + newFileName);
+					//delete avatar temp file
+					//await fs.unlink(filePath);
+
+					//insert file reference into db
+					await connection.execute(
+						`
+						INSERT INTO service_images
+						(
+							service_id,
+							service_image_filename,
+							service_image_mimetype,
+							service_image_size,
+							service_image_created_at
+						) VALUES (?, ?, ?, ?, ?)
+					`,
+						[serviceID, newFileName, file.mimetype, file.size, now]
+					);
+				}
+			}
+
+			//commit db transaction
+			await connection.commit();
+
+			res.json({
+				error: false,
+				message: `Service updated successfully`,
+			});
+		} catch (e) {
+			connection ? connection.rollback() : null;
+			next(e);
+		} finally {
+			connection ? connection.release() : null;
+		}
+	},
+	deleteService: async (req, res, next) => {
+		const { service_id } = req.params;
+
+		const query = `
+            SELECT *
+            FROM service_view
+            WHERE service_id = ? 
+            LIMIT 1
+        `;
+		const queryParams = [service_id];
+
+		let connection;
+
+		try {
+			// Get a connection from the pool
+			connection = await pool.getConnection();
+
+			//start transaction
+			await connection.beginTransaction();
+
+			//check if service exists
+			const [services] = await connection.execute(query, queryParams);
+
+			if (services.length === 0) {
+				throw new CustomError(400, "Service does not exist");
+			}
+
+			await connection.execute(
+				"DELETE FROM services WHERE service_id = ?",
+				[service_id]
+			);
+
+			res.json({
+				error: false,
+				message: "Service deleted successfully",
 			});
 		} catch (e) {
 			next(e);

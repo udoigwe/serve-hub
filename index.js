@@ -40,6 +40,7 @@ const authRoutes = require("./src/routes/auth");
 const userRoutes = require("./src/routes/user");
 const serviceRoutes = require("./src/routes/service");
 const pricingRoutes = require("./src/routes/pricing");
+const transactionRoutes = require("./src/routes/transactions");
 const errorHandler = require("./src/middleware/errorHandler");
 
 //importing all view routes
@@ -54,6 +55,7 @@ app.use(process.env.ROUTE_PREFIX, authRoutes);
 app.use(process.env.ROUTE_PREFIX, userRoutes);
 app.use(process.env.ROUTE_PREFIX, serviceRoutes);
 app.use(process.env.ROUTE_PREFIX, pricingRoutes);
+app.use(process.env.ROUTE_PREFIX, transactionRoutes);
 
 // Serve Swagger documentation at /api/docs
 app.use(process.env.API_DOCS_ROUTE_PREFIX, swaggerUi.serve);

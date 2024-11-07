@@ -4,6 +4,8 @@ $(function () {
 	$(document).ready(function ($) {
 		register();
 		login();
+		logout();
+		recogniseMe();
 	});
 
 	function register() {
@@ -124,6 +126,7 @@ $(function () {
 						unblockUI();
 						$("#login-modal").find(".ti-circle-x-filled").click();
 						alert(response.message);
+						window.location.reload();
 					},
 					error: function (req, status, err) {
 						alert(req.responseJSON.message);
@@ -132,5 +135,42 @@ $(function () {
 				});
 			}
 		});
+	}
+
+	function logout() {
+		$(".logout-btn").on("click", function () {
+			if (confirm("Are you sure you want to log out")) {
+				sessionStorage.removeItem("token");
+				window.location = "/";
+			}
+		});
+	}
+
+	function recogniseMe() {
+		const token = sessionStorage.getItem("token");
+
+		if (token) {
+			const userCategory = payloadClaim(token, "user_category");
+
+			if (userCategory === "Service Provider") {
+				$(".dashboard-link").html(`
+					<a class="nav-link" href="/provider/services">
+						My Dashboard
+					</a>
+				`);
+			}
+
+			if (userCategory === "Admin") {
+				$(".dashboard-link").html(`
+					<a class="nav-link" href="/admin">
+						My Dashboard
+					</a>
+				`);
+			}
+
+			if (userCategory === "Admin") {
+				$(".dashboard-link").remove();
+			}
+		}
 	}
 });

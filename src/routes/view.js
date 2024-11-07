@@ -12,4 +12,8 @@ router.get("/admin/users", viewsController.adminUserManagement);
 router.get("/admin/service-categories", viewsController.adminServiceCategories);
 router.get("/admin/pricing-plans", viewsController.adminPricingPlans);
 
+/* PROVIDER */
+router.get("/provider/services", viewsController.providerServices);
+router.get("/provider/plans", viewsController.providerPlan);
+
 module.exports = router;

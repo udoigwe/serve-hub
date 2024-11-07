@@ -3,6 +3,7 @@ const authValidations = require("../validations/auth.validation");
 const userValidations = require("../validations/user.validation");
 const serviceValidations = require("../validations/service.validation");
 const pricingValidations = require("../validations/pricing.validation");
+const transactionValidations = require("../validations/transactions.validation");
 
 module.exports = {
 	/* Auth route validators */
@@ -21,10 +22,19 @@ module.exports = {
 	getServiceCategory: validate(serviceValidations.getServiceCategory),
 	updateServiceCategory: validate(serviceValidations.updateServiceCategory),
 	deleteServiceCategory: validate(serviceValidations.deleteServiceCategory),
+	createNewService: validate(serviceValidations.createNewService),
+	updateService: validate(serviceValidations.updateService),
+	getService: validate(serviceValidations.getService),
+	deleteService: validate(serviceValidations.deleteService),
 
 	/* Pricing route validators */
 	createPricingPlan: validate(pricingValidations.createPricingPlan),
 	updatePricingPlan: validate(pricingValidations.updatePricingPlan),
 	getPricingPlan: validate(pricingValidations.getPricingPlan),
 	deletePricingPlan: validate(pricingValidations.deletePricingPlan),
+
+	/* Transaction route validators */
+	verifySubscriptionPayment: validate(
+		transactionValidations.verifySubscriptionPayment
+	),
 };

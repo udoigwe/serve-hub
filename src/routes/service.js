@@ -11,6 +11,11 @@ router.post(
 	serviceController.createServiceCategory
 );
 router.get(
+	"/service-categories",
+	checkAuth.verifyToken,
+	serviceController.getServiceCategories
+);
+router.get(
 	"/service-categories/datatable/fetch",
 	checkAuth.isAdminCheck,
 	serviceController.getServiceCategoriesForDataTable
@@ -32,6 +37,30 @@ router.delete(
 	checkAuth.isAdminCheck,
 	validators.deleteServiceCategory,
 	serviceController.deleteServiceCategory
+);
+router.post(
+	"/services",
+	checkAuth.verifyToken,
+	validators.createNewService,
+	serviceController.createNewService
+);
+router.get("/services", serviceController.getServices);
+router.get(
+	"/services/:service_id",
+	validators.getService,
+	serviceController.getService
+);
+router.put(
+	"/services/:service_id",
+	checkAuth.verifyToken,
+	validators.updateService,
+	serviceController.updateService
+);
+router.delete(
+	"/services/:service_id",
+	checkAuth.verifyToken,
+	validators.deleteService,
+	serviceController.deleteService
 );
 
 module.exports = router;
