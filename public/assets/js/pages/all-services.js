@@ -19,7 +19,7 @@ $(function () {
 				url: `${API_URL_ROOT}/services/${serviceID}`,
 				type: "GET",
 				dataType: "json",
-				headers: { "x-access-token": token },
+				/* headers: { "x-access-token": token }, */
 				success: function (response) {
 					var service = response.service;
 					bookingModal
@@ -65,7 +65,7 @@ $(function () {
 			type: "GET",
 			url: `${API_URL_ROOT}/service-categories?service_category_status=Active`,
 			dataType: "json",
-			headers: { "x-access-token": token },
+			/* headers: { "x-access-token": token }, */
 			success: function (response) {
 				var categories = response.data;
 				var html = "";
