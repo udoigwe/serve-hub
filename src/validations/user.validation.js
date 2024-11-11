@@ -37,12 +37,12 @@ module.exports = {
 		// Custom validator to validate files
 		body().custom((_, { req }) => {
 			const files = req.files;
-			const avatar = req.files.user_avatar;
-			const certificateOfIncoporation =
-				req.files.certificate_of_incoporation;
 			const acceptedFileTypes = ["jpg", "png", "jpeg"];
 
 			if (files) {
+				const avatar = req.files.user_avatar;
+				const certificateOfIncoporation =
+					req.files.certificate_of_incoporation;
 				if (avatar) {
 					//check for avatar sizes
 					if (!isWithinFileSize(avatar, 2 * 1024 * 1024)) {
