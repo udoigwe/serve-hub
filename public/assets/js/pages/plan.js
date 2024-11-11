@@ -1419,7 +1419,7 @@ $(function () {
                             <td class="text-gray fw-500">${
 								subscription.service_charge
 							}%</td>
-                            <td class="text-gray fw-500">$${
+                            <td class="text-gray fw-500">${
 								subscription.transaction_id
 							}</td>
                             <td class="text-gray fw-500">${

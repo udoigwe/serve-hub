@@ -12,7 +12,7 @@ router.post(
 );
 router.get(
 	"/service-categories",
-	checkAuth.verifyToken,
+	/* checkAuth.verifyToken, */
 	serviceController.getServiceCategories
 );
 router.get(
