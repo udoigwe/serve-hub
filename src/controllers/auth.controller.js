@@ -84,7 +84,7 @@ module.exports = {
 				.resize({ height: 200, width: 200, fit: "cover" })
 				.toFile(uploadPath + newAvatatrFileName);
 			//delete avatar temp file
-			await fs.unlink(avatarFilePath);
+			//await fs.unlink(avatarFilePath);
 
 			//upload the certificate of incoporation if exists
 			if (coi) {
