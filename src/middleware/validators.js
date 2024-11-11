@@ -26,6 +26,7 @@ module.exports = {
 	updateService: validate(serviceValidations.updateService),
 	getService: validate(serviceValidations.getService),
 	deleteService: validate(serviceValidations.deleteService),
+	serviceBooking: validate(serviceValidations.serviceBooking),
 
 	/* Pricing route validators */
 	createPricingPlan: validate(pricingValidations.createPricingPlan),

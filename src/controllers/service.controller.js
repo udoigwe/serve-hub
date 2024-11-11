@@ -1047,6 +1047,201 @@ module.exports = {
 			connection ? connection.release() : null;
 		}
 	},
+	serviceBooking: async (req, res, next) => {
+		const {
+			client_fullname,
+			client_email,
+			client_phone,
+			client_address,
+			service_start_time,
+			service_end_time,
+			service_id,
+			transaction_id,
+			amount,
+		} = req.body;
+
+		const remarks = !req.body.remarks ? null : req.body.remarks;
+
+		let connection;
+
+		let query = `
+			SELECT *
+			FROM service_view
+			WHERE service_id = ?
+			LIMIT 1
+		`;
+		const queryParams = [service_id];
+
+		try {
+			// Get a connection from the pool
+			connection = await pool.getConnection();
+
+			//check if service exists
+			const [services] = await connection.execute(query, queryParams);
+
+			if (services.length === 0) {
+				throw new CustomError(404, "Service does not exist");
+			}
+
+			const service = services[0];
+			const serviceCharge =
+				parseFloat(service.service_charge) * 0.01 * parseFloat(amount);
+			const expectedPayout = parseFloat(amount) - serviceCharge;
+
+			//insert booking into db
+			await connection.execute(
+				`
+				INSERT INTO service_bookings 
+				(
+					service_id,
+					start_time,
+					end_time,
+					client_fullname,
+					client_email,
+					client_phone,
+					client_address,
+					remarks,
+					amount_paid,
+					transaction_id,
+					expected_payout
+				) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+			`,
+				[
+					service_id,
+					service_start_time,
+					service_end_time,
+					client_fullname,
+					client_email,
+					client_phone,
+					client_address,
+					remarks,
+					amount,
+					transaction_id,
+					expectedPayout,
+				]
+			);
+
+			res.json({
+				error: false,
+				message: `Service has been booked successfully.`,
+			});
+		} catch (e) {
+			next(e);
+		} finally {
+			connection ? connection.release() : null;
+		}
+	},
+	getServiceBookings: async (req, res, next) => {
+		const {
+			provider_id,
+			service_id,
+			booking_status,
+			payout_status,
+			service_category_id,
+		} = req.query;
+
+		const page = req.query.page ? parseInt(req.query.page) : null;
+		const perPage = req.query.perPage ? parseInt(req.query.perPage) : null;
+
+		let connection;
+
+		let query = `
+            SELECT *
+            FROM service_bookings_view
+            WHERE 1 = 1
+        `;
+		const queryParams = [];
+
+		let query2 = `
+            SELECT COUNT(*) AS total_records 
+            FROM service_bookings_view
+            WHERE 1 = 1
+        `;
+		const queryParams2 = [];
+
+		if (provider_id) {
+			query += " AND provider_id = ?";
+			queryParams.push(provider_id);
+
+			query2 += " AND provider_id = ?";
+			queryParams2.push(provider_id);
+		}
+		if (service_id) {
+			query += " AND service_id = ?";
+			queryParams.push(service_id);
+
+			query2 += " AND service_id = ?";
+			queryParams2.push(service_id);
+		}
+		if (booking_status) {
+			query += " AND booking_status = ?";
+			queryParams.push(booking_status);
+
+			query2 += " AND booking_status = ?";
+			queryParams2.push(booking_status);
+		}
+		if (payout_status) {
+			query += " AND payout_status = ?";
+			queryParams.push(payout_status);
+
+			query2 += " AND payout_status = ?";
+			queryParams2.push(payout_status);
+		}
+		if (service_category_id) {
+			query += " AND service_category_id = ?";
+			queryParams.push(service_category_id);
+
+			query2 += " AND service_category_id = ?";
+			queryParams2.push(service_category_id);
+		}
+
+		query += ` ORDER BY service_booking_id DESC`;
+
+		if (page && perPage) {
+			const offset = (page - 1) * perPage;
+			query += ` LIMIT ?, ?`;
+			queryParams.push(offset);
+			queryParams.push(perPage);
+		}
+
+		try {
+			// Get a connection from the pool
+			connection = await pool.getConnection();
+
+			const [data] = await connection.execute(query, queryParams);
+			const [total] = await connection.execute(query2, queryParams2);
+
+			//total records
+			const totalRecords = parseInt(total[0].total_records);
+
+			// Calculate total pages if perPage is specified
+			const totalPages = perPage
+				? Math.ceil(totalRecords / perPage)
+				: null;
+
+			// Calculate next and previous pages based on provided page and totalPages
+			const nextPage =
+				page && totalPages && page < totalPages ? page + 1 : null;
+			const prevPage = page && page > 1 ? page - 1 : null;
+
+			res.json({
+				error: false,
+				data,
+				paginationData: {
+					totalRecords,
+					totalPages,
+					currentPage: page,
+					itemsPerPage: perPage,
+					nextPage,
+					prevPage,
+				},
+			});
+		} catch (e) {
+			next(e);
+		} finally {
+			connection ? connection.release() : null;
+		}
+	},
 	/*createNews: async (req, res, next) => {
 		const newsAuthorID = req.userDecodedData.user_id;
 		const { news_category_id, news_title, news_body, news_tags } = req.body;

@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <%- include('./partials/head') %>
+</head>
+
+<body>
+
+    <%- include('./partials/header') %>
+
+
+    <div class="breadcrumb-bar text-center">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-12 col-12">
+                    <h2 class="breadcrumb-title mb-2">Services</h2>
+                    <nav aria-label="breadcrumb">
+                        <ol class="breadcrumb justify-content-center mb-0">
+                            <li class="breadcrumb-item"><a href="/"><i class="ti ti-home-2"></i></a></li>
+                            <li class="breadcrumb-item active" aria-current="page">Services</li>
+                        </ol>
+                    </nav>
+                </div>
+            </div>
+            <div class="breadcrumb-bg">
+                <img src="/assets/img/bg/breadcrumb-bg-01.png" class="breadcrumb-bg-1" alt="Img">
+                <img src="/assets/img/bg/breadcrumb-bg-02.png" class="breadcrumb-bg-2" alt="Img">
+            </div>
+        </div>
+    </div>
+
+
+    <div class="page-wrapper">
+        <div class="content">
+            <div class="container">
+                <div class="row">
+                    <div class="col-xl-3 col-lg-4 theiaStickySidebar">
+                        <div class="card mb-4 mb-lg-0">
+                            <div class="card-body">
+                                <form id="service-filter-form">
+                                    <div
+                                        class="d-flex align-items-center justify-content-between mb-3 pb-3 border-bottom">
+                                        <h5><i class="ti ti-filter-check me-2"></i>Filters</h5>
+                                        <a href="/services" class="reset-btn">Reset Filter</a>
+                                    </div>
+                                    <div class="mb-3 pb-3 border-bottom">
+                                        <label class="form-label">Search By Keyword</label>
+                                        <input type="text" class="form-control keyword" placeholder="What are you looking for?">
+                                    </div>
+                                    <div class="accordion border-bottom mb-3">
+                                        <div class="accordion-item mb-3">
+                                            <div class="accordion-header" id="accordion-headingThree">
+                                                <div class="accordion-button p-0 mb-3" data-bs-toggle="collapse"
+                                                    data-bs-target="#accordion-collapseThree" aria-expanded="true"
+                                                    aria-controls="accordion-collapseThree" role="button">
+                                                    Categories
+                                                </div>
+                                            </div>
+                                            <div id="accordion-collapseThree" class="accordion-collapse collapse show" aria-labelledby="accordion-headingThree">
+                                                <div class="mb-3">
+                                                    <select class="select service_category_id">
+                                                        <option value="">Select Service Category</option>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="accordion border-bottom mb-3">
+                                        <div class="accordion-header" id="accordion-headingFive">
+                                            <div class="accordion-button p-0 mb-3" data-bs-toggle="collapse"
+                                                data-bs-target="#accordion-collapseFive" aria-expanded="true"
+                                                aria-controls="accordion-collapseFive" role="button">
+                                                Location
+                                            </div>
+                                        </div>
+                                        <div id="accordion-collapseFive" class="accordion-collapse collapse show"
+                                            aria-labelledby="accordion-headingFive">
+                                            <div class="mb-3">
+                                                <div class="position-relative">
+                                                    <input type="text" class="form-control location"
+                                                        placeholder="Input Location">
+                                                    <span class="icon-addon"><i class="ti ti-map-pin"></i></span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="accordion border-bottom mb-3">
+                                        <div class="accordion-header" id="accordion-headingSix">
+                                            <div class="accordion-button p-0 mb-3" data-bs-toggle="collapse"
+                                                data-bs-target="#accordion-collapseSix" aria-expanded="true"
+                                                aria-controls="accordion-collapseSix" role="button">
+                                                Price Range
+                                            </div>
+                                        </div>
+                                        <div id="accordion-collapseSix" class="accordion-collapse collapse show"
+                                            aria-labelledby="accordion-headingSix">
+                                            <div class="filter-range">
+                                                <input type="text" id="range">
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <button type="submit" class="btn btn-dark w-100">Search</button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-xl-9 col-lg-8">
+                        <div class="d-flex justify-content-between align-items-center flex-wrap mb-4">
+                            <h4>Found <span class="text-primary"><%= data.length %> Service(s)</span></h4>
+                        </div>
+                        <div class="row justify-content-center align-items-center">
+                            <% data.forEach(service=> { %>
+                                <div class="col-xl-4 col-md-6">
+                                    <div class="card p-0">
+                                        <div class="card-body p-0">
+                                            <div class="img-sec w-100">
+                                                <a href="service-details.html"><img src="/uploads/service-gallery/<%= service.service_images[0].service_image_filename %>"
+                                                        class="img-fluid rounded-top w-100" alt="img"></a>
+                                                <div class="image-tag d-flex justify-content-end align-items-center">
+                                                    <span class="trend-tag"><%= service.service_category %></span>
+                                                    <a href="javascript:void(0);" class="fav-icon like-icon"><i class="ti ti-heart"></i></a>
+                                                </div>
+                                            </div>
+                                            <div class="p-3">
+                                                <h5 class="mb-2">
+                                                    <a href="service-details.html"><%= service.service_title %></a>
+                                                </h5>
+                                                <div class="d-flex justify-content-between align-items-center mb-3">
+                                                    <p class="fs-14 mb-0"><i class="ti ti-map-pin me-2"></i><%= service.service_address %></p>
+                                                    <span class="rating text-gray fs-14"><i class="fa fa-star filled me-1"></i>4.9</span>
+                                                </div>
+                                                <div class="d-flex justify-content-between align-items-center">
+                                                    <h5>$<%= service.service_price %> / hr <!-- <span class="fs-13 text-gray"><del>$30.00/hr</del></span>
+                                                    </h5> -->
+                                                    <a href="javascript:void(0)" class="btn bg-primary-transparent btn-book" service-id="<%= service.service_id %>" data-bs-toggle="modal" data-bs-target="#booking-modal">Book Now</a>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            <% }) %>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade custom-modal" id="booking-modal">
+        <div class="modal-dialog modal-dialog-centered modal-xl">
+            <div class="modal-content">
+                <div class="modal-header d-flex align-items-center justify-content-between border-bottom">
+                    <h5 class="modal-title"></h5>
+                    <a href="javascript:void(0);" data-bs-dismiss="modal" aria-label="Close"><i
+                            class="ti ti-circle-x-filled fs-20"></i></a>
+                </div>
+                <form id="service-booking-form">
+                    <div class="modal-body">
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="row">
+                                    <div class="col-md-4">
+                                        <div class="mb-3">
+                                            <label class="form-label">Full Name *</label>
+                                            <input type="text" class="form-control required client_fullname" name="client_fullname" placeholder="Your fullname">
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="mb-3">
+                                            <label class="form-label">Email Address *</label>
+                                            <input type="email" class="form-control required client_email" name="client_email" placeholder="Valid email address">
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="mb-3">
+                                            <label class="form-label">Phone Number *</label>
+                                            <input type="text" class="form-control required client_phone" name="client_phone" placeholder="Phone Number">
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-3">
+                                        <div class="mb-3">
+                                            <label class="form-label">Start Date *</label>
+                                            <input type="date" class="form-control start_date"
+                                                name="start_date" placeholder="Start date of service delivery">
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <div class="mb-3">
+                                            <label class="form-label">Start Time *</label>
+                                            <input type="time" class="form-control start_time" name="start_time" placeholder="Start Time of service delivery">
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <div class="mb-3">
+                                            <label class="form-label">End Date *</label>
+                                            <input type="date" class="form-control required end_date" name="end_date" placeholder="End Date of service delivery">
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <div class="mb-3">
+                                            <label class="form-label">End Time *</label>
+                                            <input type="time" class="form-control required end_time" name="end_time" placeholder="End time of service delivery">
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <div class="mb-3">
+                                            <label class="form-label">Address *</label>
+                                            <input type="text" class="form-control required client_address" name="client_address" placeholder="Your address for service delivery">
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <div class="mb-3">
+                                            <label class="form-label">Remarks</label>
+                                            <textarea class="form-control remarks" name="remarks"
+                                                rows="5" placeholder="Additional requests if any"></textarea>
+                                        </div>
+                                    </div>
+                                </div>
+                                <input type="hidden" class="required service_id" name="service_id" />
+                                <input type="hidden" class="required service_price" />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn bg-gray" data-bs-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn btn-dark">Book Service</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+
+    <%- include('./partials/footer') %>
+
+
+    <div class="xb-cursor tx-js-cursor">
+        <div class="xb-cursor-wrapper">
+            <div class="xb-cursor--follower xb-js-follower"></div>
+        </div>
+    </div>
+
+    <%- include('./partials/auth-modals') %>
+    <%- include('./partials/scripts') %>
+    <script src="/assets/plugins/theia-sticky-sidebar/ResizeSensor.js"
+        type="text/javascript"></script>
+    <script src="/assets/plugins/theia-sticky-sidebar/theia-sticky-sidebar.js"
+        type="text/javascript"></script>
+    
+    <script src="/assets/plugins/ion-rangeslider/js/ion.rangeSlider.js"
+        type="text/javascript"></script>
+    <script src="/assets/plugins/ion-rangeslider/js/custom-rangeslider.js"
+        type="text/javascript"></script>
+    <script src="/assets/plugins/ion-rangeslider/js/ion.rangeSlider.min.js"
+        type="text/javascript"></script>
+    <script src="https://js.paystack.co/v2/inline.js"></script>
+    <script src="/assets/js/pages/all-services.js"></script>
+</body>
+</html>

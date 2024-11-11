@@ -163,4 +163,33 @@ module.exports = {
 			.exists({ checkFalsy: true })
 			.withMessage("Service ID is required"),
 	],
+	serviceBooking: [
+		body("client_fullname")
+			.exists({ checkFalsy: true })
+			.withMessage("Client full name is required"),
+		body("client_email")
+			.exists({ checkFalsy: true })
+			.withMessage("Client email is required"),
+		body("client_phone")
+			.exists({ checkFalsy: true })
+			.withMessage("Client phone is required"),
+		body("client_address")
+			.exists({ checkFalsy: true })
+			.withMessage("Client address is required"),
+		body("service_start_time")
+			.exists({ checkFalsy: true })
+			.withMessage("Service Start time is required"),
+		body("service_end_time")
+			.exists({ checkFalsy: true })
+			.withMessage("Service end time is required"),
+		body("service_id")
+			.exists({ checkFalsy: true })
+			.withMessage("Service id is required"),
+		body("transaction_id")
+			.exists({ checkFalsy: true })
+			.withMessage("Transaction id is required"),
+		body("amount")
+			.exists({ checkFalsy: true })
+			.withMessage("Amount is required"),
+	],
 };

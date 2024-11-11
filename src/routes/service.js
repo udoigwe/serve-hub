@@ -62,5 +62,15 @@ router.delete(
 	validators.deleteService,
 	serviceController.deleteService
 );
+router.post(
+	"/bookings",
+	validators.serviceBooking,
+	serviceController.serviceBooking
+);
+router.get(
+	"/bookings",
+	checkAuth.verifyToken,
+	serviceController.getServiceBookings
+);
 
 module.exports = router;
