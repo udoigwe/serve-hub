@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Nov 07, 2024 at 09:36 PM
+-- Generation Time: Nov 11, 2024 at 06:13 PM
 -- Server version: 10.4.28-MariaDB
 -- PHP Version: 8.2.4
 
@@ -101,12 +101,53 @@ CREATE TABLE `service_bookings` (
   `client_address` varchar(255) NOT NULL,
   `remarks` text DEFAULT NULL,
   `amount_paid` double NOT NULL,
+  `transaction_id` varchar(255) NOT NULL,
   `discount` double NOT NULL,
   `expected_payout` double NOT NULL,
   `booked_at` datetime NOT NULL DEFAULT current_timestamp(),
   `booking_status` enum('Booked','Provider Accepted','Provider Rejected','Canceled','Completed') NOT NULL DEFAULT 'Booked',
   `payout_status` enum('Pending Payout','Scheduled For Payout','Paid Out','') NOT NULL DEFAULT 'Pending Payout'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `service_bookings`
+--
+
+INSERT INTO `service_bookings` (`service_booking_id`, `service_id`, `start_time`, `end_time`, `client_fullname`, `client_email`, `client_phone`, `client_address`, `remarks`, `amount_paid`, `transaction_id`, `discount`, `expected_payout`, `booked_at`, `booking_status`, `payout_status`) VALUES
+(1, 7, '2024-11-12 07:59:00', '2024-11-12 19:54:00', 'Hunter Jonah', 'hunter@gmail.com', '+1 909 1928 918', 'Vermount', 'Very snappy', 286, 'T919995694656204', 0, 254.54, '2024-11-11 04:50:28', 'Booked', 'Pending Payout'),
+(2, 4, '2024-11-13 09:56:00', '2024-11-14 10:57:00', 'Hosiah Micah', 'hosiah@yahoo.co.uk', '+1 709 8192 817', 'Kansas City', 'More than a days job', 325.21666666666664, 'T095249430667411', 0, 289.4428333333333, '2024-11-11 04:52:30', 'Booked', 'Pending Payout');
+
+-- --------------------------------------------------------
+
+--
+-- Stand-in structure for view `service_bookings_view`
+-- (See below for the actual view)
+--
+CREATE TABLE `service_bookings_view` (
+`service_booking_id` int(11)
+,`service_id` int(11)
+,`start_time` datetime
+,`end_time` datetime
+,`client_fullname` varchar(255)
+,`client_email` varchar(255)
+,`client_phone` varchar(255)
+,`client_address` varchar(255)
+,`remarks` text
+,`amount_paid` double
+,`transaction_id` varchar(255)
+,`discount` double
+,`expected_payout` double
+,`booked_at` datetime
+,`booking_status` enum('Booked','Provider Accepted','Provider Rejected','Canceled','Completed')
+,`payout_status` enum('Pending Payout','Scheduled For Payout','Paid Out','')
+,`service_charge` double(19,2)
+,`service_title` varchar(255)
+,`provider_id` int(11)
+,`provider` varchar(255)
+,`service_category_id` int(11)
+,`service_category` varchar(255)
+,`service_price` int(11)
+);
 
 -- --------------------------------------------------------
 
@@ -265,7 +306,7 @@ CREATE TABLE `subscriptions` (
 INSERT INTO `subscriptions` (`subscription_id`, `subscription_plan_id`, `subscriber_id`, `subscription_amount`, `subscribed_at`, `expires_at`, `transaction_id`) VALUES
 (21, 3, 6, 11, '2024-11-07 00:06:32', '2024-11-06 23:09:32', 'T705812714044614'),
 (22, 3, 6, 11, '2024-11-07 00:07:23', '2024-11-06 23:12:31', 'T292446195337665'),
-(23, 3, 6, 11, '2024-11-07 00:08:50', '2024-11-06 23:15:30', 'T110506023180976'),
+(23, 3, 6, 11, '2024-11-07 00:08:50', '2024-11-26 23:15:30', 'T110506023180976'),
 (24, 1, 6, 13, '2024-11-07 17:36:33', '2024-11-07 16:41:33', 'T506873135814929'),
 (25, 1, 6, 13, '2024-11-07 17:44:33', '2024-11-07 16:49:33', 'T137538683950478');
 
@@ -361,6 +402,15 @@ INSERT INTO `users` (`user_id`, `user_full_name`, `user_email`, `user_phone`, `u
 (5, 'Clemanze', 'onyenze@gmail.com', '08012890911', 'servehub2024', 'U2FsdGVkX18aFH1TkH42g1LnPxcCXdJehd5vk1LkLRo=', 'Customer', '381bfb58-b588-4621-addf-663489611816.jpeg', 'c24cb1f2-26b6-4a52-be34-cd9b41580f15.png', NULL, NULL, NULL, NULL, NULL, NULL, '2024-10-12 03:10:16', 'Active'),
 (6, 'Joe Okoye', 'okoye@gmail.com', '0900980989', 'servehub2024', 'U2FsdGVkX18I+mu0c5awI5rldc1Aw6oiynufbGaf0l8=', 'Service Provider', NULL, '62eedbff-5715-4ea7-8cd4-d025b916e965.png', NULL, NULL, NULL, NULL, NULL, NULL, '2024-10-21 12:35:55', 'Active'),
 (8, 'Rise Washers', 'rise@gmail.com', '08076545676', 'servehub2024', 'U2FsdGVkX191Dzk1sg5722saWtacGbqI5ziYSkaEPsg=', 'Service Provider', 'e04fab19-564b-4878-9919-55b0145e24cd.jpg', '755dd857-5d9f-4b39-9a44-6c80034f91af.png', NULL, NULL, NULL, NULL, NULL, NULL, '2024-10-26 19:27:08', 'Active');
+
+-- --------------------------------------------------------
+
+--
+-- Structure for view `service_bookings_view`
+--
+DROP TABLE IF EXISTS `service_bookings_view`;
+
+CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `service_bookings_view`  AS SELECT `a`.`service_booking_id` AS `service_booking_id`, `a`.`service_id` AS `service_id`, `a`.`start_time` AS `start_time`, `a`.`end_time` AS `end_time`, `a`.`client_fullname` AS `client_fullname`, `a`.`client_email` AS `client_email`, `a`.`client_phone` AS `client_phone`, `a`.`client_address` AS `client_address`, `a`.`remarks` AS `remarks`, `a`.`amount_paid` AS `amount_paid`, `a`.`transaction_id` AS `transaction_id`, `a`.`discount` AS `discount`, `a`.`expected_payout` AS `expected_payout`, `a`.`booked_at` AS `booked_at`, `a`.`booking_status` AS `booking_status`, `a`.`payout_status` AS `payout_status`, round(coalesce(`a`.`amount_paid`,0) - coalesce(`a`.`expected_payout`,0),2) AS `service_charge`, `b`.`service_title` AS `service_title`, `b`.`subscriber_id` AS `provider_id`, `b`.`provider` AS `provider`, `b`.`service_category_id` AS `service_category_id`, `b`.`service_category` AS `service_category`, `b`.`service_price` AS `service_price` FROM (`service_bookings` `a` left join `service_view` `b` on(`a`.`service_id` = `b`.`service_id`)) ;
 
 -- --------------------------------------------------------
 
@@ -486,7 +536,7 @@ ALTER TABLE `services`
 -- AUTO_INCREMENT for table `service_bookings`
 --
 ALTER TABLE `service_bookings`
-  MODIFY `service_booking_id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `service_booking_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- AUTO_INCREMENT for table `service_categories`
