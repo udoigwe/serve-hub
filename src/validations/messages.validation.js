@@ -10,10 +10,24 @@ const {
 const moment = require("moment");
 
 module.exports = {
-	createServiceCategory: [
-		body("service_category")
+	sendMessage: [
+		body("message_subject")
 			.exists({ checkFalsy: true })
-			.withMessage("Service Category is required"),
+			.withMessage("Message subject is required"),
+		body("message_sender_name")
+			.exists({ checkFalsy: true })
+			.withMessage("Message sender name is required"),
+		body("message_sender_email_address")
+			.exists({ checkFalsy: true })
+			.withMessage("Message sender email is required")
+			.isEmail()
+			.withMessage("Please provide a valid email address"),
+		body("message_sender_phone_number")
+			.exists({ checkFalsy: true })
+			.withMessage("Message sender Phone number is required"),
+		body("message")
+			.exists({ checkFalsy: true })
+			.withMessage("Message body is required"),
 	],
 	updateServiceCategory: [
 		param("service_category_id")
@@ -205,13 +219,5 @@ module.exports = {
 		body("rating")
 			.exists({ checkFalsy: true })
 			.withMessage("Rating is required"),
-	],
-	updateBookingStatus: [
-		body("service_booking_id")
-			.exists({ checkFalsy: true })
-			.withMessage("Service Booking ID is required"),
-		body("booking_status")
-			.exists({ checkFalsy: true })
-			.withMessage("Booking Status is required"),
 	],
 };

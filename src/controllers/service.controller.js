@@ -744,6 +744,14 @@ module.exports = {
 			//get uploaded images for each service
 			for (let i = 0; i < data.length; i++) {
 				const service = data[i];
+				const [ratings] = await connection.execute(
+					`
+					SELECT ROUND(AVG(rating), 1) AS average_rating
+            		FROM reviews_view
+					WHERE service_id = ?
+				`,
+					[service.service_id]
+				);
 				const [images] = await connection.execute(
 					`
                     SELECT *
@@ -754,6 +762,7 @@ module.exports = {
 					[service.service_id]
 				);
 				service.service_images = images;
+				service.average_rating = ratings[0].average_rating;
 			}
 
 			//total records
@@ -810,6 +819,14 @@ module.exports = {
 			}
 
 			const service = services[0];
+			const [ratings] = await connection.execute(
+				`
+					SELECT ROUND(AVG(rating), 1) AS average_rating
+            		FROM reviews_view
+					WHERE service_id = ?
+				`,
+				[serviceID]
+			);
 			const [images] = await connection.execute(
 				`
                     SELECT *
@@ -820,6 +837,7 @@ module.exports = {
 				[serviceID]
 			);
 			service.service_images = images;
+			service.average_rating = ratings[0].average_rating;
 
 			res.json({
 				error: false,
@@ -1235,6 +1253,129 @@ module.exports = {
 					nextPage,
 					prevPage,
 				},
+			});
+		} catch (e) {
+			next(e);
+		} finally {
+			connection ? connection.release() : null;
+		}
+	},
+	postReview: async (req, res, next) => {
+		const reviewerID = req.userDecodedData.user_id;
+		const { service_id, review, rating, review_title } = req.body;
+
+		let connection;
+
+		let query = `
+			SELECT *
+			FROM reviews
+			WHERE service_id = ?
+			AND reviewer_id = ?
+			LIMIT 1
+		`;
+		const queryParams = [service_id, reviewerID];
+
+		try {
+			// Get a connection from the pool
+			connection = await pool.getConnection();
+
+			const [reviews] = await connection.execute(query, queryParams);
+
+			if (reviews.length > 0) {
+				//review already exists for this service and reviewer; update review
+				await connection.execute(
+					`
+					UPDATE reviews
+					SET
+						review_title = ?,
+						review = ?,
+						rating = ?,
+						reviewed_at = CURRENT_TIMESTAMP
+					WHERE service_id = ?
+					AND reviewer_id = ?
+				`,
+					[review_title, review, rating, service_id, reviewerID]
+				);
+
+				res.json({
+					error: false,
+					message: "Thank you for your review",
+				});
+			} else {
+				//review does not exist for this service and reviewer. Insert review
+				await connection.execute(
+					`
+					INSERT INTO reviews
+					(
+						service_id,
+						reviewer_id,
+						review_title,
+						review,
+						rating
+					) VALUES (?, ?, ?, ?, ?)
+				`,
+					[service_id, reviewerID, review_title, review, rating]
+				);
+
+				res.json({
+					error: false,
+					message: "Thank you for your review",
+				});
+			}
+		} catch (e) {
+			next(e);
+		} finally {
+			connection ? connection.release() : null;
+		}
+	},
+	updateBookingStatus: async (req, res, next) => {
+		const { service_booking_id, booking_status } = req.body;
+
+		let connection;
+
+		let query = `
+			SELECT *
+			FROM service_bookings_view
+			WHERE service_booking_id = ?
+			LIMIT 1
+		`;
+		const queryParams = [service_booking_id];
+
+		try {
+			// Get a connection from the pool
+			connection = await pool.getConnection();
+
+			const [bookings] = await connection.execute(query, queryParams);
+
+			if (bookings.length === 0) {
+				throw new CustomError(404, "Booking does not exist");
+			}
+
+			let updateQuery =
+				booking_status !== "Completed"
+					? `
+				UPDATE service_bookings
+					SET
+						booking_status = ?
+					WHERE service_booking_id = ?
+			`
+					: `
+				UPDATE service_bookings
+					SET
+						payout_status = 'Scheduled For Payout',
+						booking_status = ?
+					WHERE service_booking_id = ?
+			`;
+
+			//update service booking status
+			await connection.execute(updateQuery, [
+				booking_status,
+				service_booking_id,
+			]);
+
+			res.json({
+				error: false,
+				message: "Booking Status updated successfully",
 			});
 		} catch (e) {
 			next(e);

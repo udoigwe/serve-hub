@@ -81,4 +81,27 @@ module.exports = {
 			.exists({ checkFalsy: true })
 			.withMessage("User ID is required"),
 	],
+	becomeAProvider: [
+		// Custom validator to validate files
+		body().custom((_, { req }) => {
+			const acceptedFileTypes = ["jpg", "png", "jpeg"];
+
+			if (!req.files || !req.files.certificate_of_incoporation) {
+				throw "No file uploads found";
+			}
+
+			const certificateOfIncoporation =
+				req.files.certificate_of_incoporation;
+
+			if (!isValidFile2(certificateOfIncoporation, acceptedFileTypes)) {
+				throw `Certificate of Incoporation file upload must be jpg or png files`;
+			}
+
+			if (!isWithinFileSize(certificateOfIncoporation, 2 * 1024 * 1024)) {
+				throw `Uploads must not be more than 2MB in size each`;
+			}
+
+			return true;
+		}),
+	],
 };

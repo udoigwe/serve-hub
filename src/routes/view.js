@@ -4,6 +4,7 @@ const viewsController = require("../controllers/view.controller");
 
 router.get("/", viewsController.home);
 router.get("/services", viewsController.services);
+router.get("/services/:service_id", viewsController.service);
 
 /* ADMIN */
 router.get("/admin", viewsController.adminHome);

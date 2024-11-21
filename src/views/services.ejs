@@ -115,7 +115,7 @@
                                     <div class="card p-0">
                                         <div class="card-body p-0">
                                             <div class="img-sec w-100">
-                                                <a href="service-details.html"><img src="/uploads/service-gallery/<%= service.service_images[0].service_image_filename %>"
+                                                <a href="/services/<%= service.service_id %>"><img src="/uploads/service-gallery/<%= service.service_images[0].service_image_filename %>"
                                                         class="img-fluid rounded-top w-100" alt="img"></a>
                                                 <div class="image-tag d-flex justify-content-end align-items-center">
                                                     <span class="trend-tag"><%= service.service_category %></span>
@@ -124,7 +124,7 @@
                                             </div>
                                             <div class="p-3">
                                                 <h5 class="mb-2">
-                                                    <a href="service-details.html"><%= service.service_title %></a>
+                                                    <a href="/services/<%= service.service_id %>"><%= service.service_title %></a>
                                                 </h5>
                                                 <div class="d-flex justify-content-between align-items-center mb-3">
                                                     <p class="fs-14 mb-0"><i class="ti ti-map-pin me-2"></i><%= service.service_address %></p>

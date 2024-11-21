@@ -6,6 +6,7 @@ $(function () {
 		login();
 		logout();
 		recogniseMe();
+		becomeAProvider();
 	});
 
 	function register() {
@@ -158,6 +159,7 @@ $(function () {
 						My Dashboard
 					</a>
 				`);
+				$(".provider-link").remove();
 			}
 
 			if (userCategory === "Admin") {
@@ -166,11 +168,74 @@ $(function () {
 						My Dashboard
 					</a>
 				`);
+				$(".provider-link").remove();
 			}
 
 			if (userCategory === "Customer") {
 				$(".dashboard-link").remove();
 			}
+
+			$(".signed-out-links").css("display", "inline-block");
+			$(".signed-in-links").css("display", "none");
+		} else {
+			$(".signed-in-links").css("display", "inline-block");
+			$(".signed-out-links").css("display", "none");
 		}
+	}
+
+	function becomeAProvider() {
+		$("#provider-form").on("submit", function (e) {
+			e.preventDefault();
+
+			if (confirm("Are you sure you want to proceed with this action")) {
+				var form = $(this);
+				var fields = form.find(
+					"input.required, select.required, textarea.required"
+				);
+
+				var token = sessionStorage.getItem("token");
+
+				blockUI();
+
+				for (var i = 0; i < fields.length; i++) {
+					if (fields[i].value == "") {
+						/*alert(fields[i].id)*/
+						unblockUI();
+						//form.find("#" + fields[i].id).focus();
+						alert(`${fields[i].name} is required`);
+						return false;
+					}
+				}
+
+				if (!token) {
+					unblockUI();
+					alert("You must be a logged in customer to apply for this");
+					return false;
+				}
+
+				$.ajax({
+					type: "POST",
+					url: `${API_URL_ROOT}/providers`,
+					data: new FormData(form[0]),
+					dataType: "json",
+					contentType: false,
+					processData: false,
+					cache: false,
+					headers: { "x-access-token": token },
+					success: function (response) {
+						unblockUI();
+						alert(response.message);
+						form.get(0).reset();
+						$("#provider-modal")
+							.find(".ti-circle-x-filled")
+							.click();
+					},
+					error: function (req, status, err) {
+						alert(req.responseJSON.message);
+						unblockUI();
+					},
+				});
+			}
+		});
 	}
 });

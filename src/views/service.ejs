@@ -1,0 +1,561 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <%- include('./partials/head') %>
+</head>
+
+<body>
+
+    <%- include('./partials/header') %>
+
+
+    <div class="breadcrumb-bar text-center">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-12 col-12">
+                    <h2 class="breadcrumb-title mb-2">Service Details</h2>
+                    <nav aria-label="breadcrumb">
+                        <ol class="breadcrumb justify-content-center mb-0">
+                            <li class="breadcrumb-item"><a href="/"><i class="ti ti-home-2"></i></a></li>
+                            <li class="breadcrumb-item">Service</li>
+                            <li class="breadcrumb-item active" aria-current="page">Service Details</li>
+                        </ol>
+                    </nav>
+                </div>
+            </div>
+            <div class="breadcrumb-bg">
+                <img src="/assets/img/bg/breadcrumb-bg-01.png" class="breadcrumb-bg-1" alt="Img">
+                <img src="/assets/img/bg/breadcrumb-bg-02.png" class="breadcrumb-bg-2" alt="Img">
+            </div>
+        </div>
+    </div>
+
+    <div class="page-wrapper">
+        <div class="content">
+            <div class="container">
+                <div class="row">
+                    <div class="col-xl-8">
+                        <div class="card border-0">
+                            <div class="card-body">
+                                <div class="service-head mb-2">
+                                    <div class="d-flex align-items-center justify-content-between flex-wrap">
+                                        <h3 class="mb-2"><%= service.service_title %></h3>
+                                        <span class="badge badge-purple-transparent mb-2"><i
+                                                class="ti ti-calendar-check me-1"></i><%= service.booking_count %> Booking(s)</span>
+                                    </div>
+                                    <div class="d-flex align-items-center justify-content-between flex-wrap mb-2">
+                                        <div class="d-flex align-items-center flex-wrap">
+                                            <p class="me-3 mb-2"><i class="ti ti-map-pin me-2"></i><%= service.service_address %> <a href="javascript:void(0);"
+                                                    class="link-primary text-decoration-underline">View Location</a></p>
+                                            <!-- <p class="mb-2"><i class="ti ti-star-filled text-warning me-2"></i><span
+                                                    class="text-gray-9">4.9</span>(255 reviews)</p> -->
+                                        </div>
+                                        <!-- <div class="d-flex align-items-center flex-wrap">
+                                            <a href="javscript:void(0);" class="me-3 mb-2"><i
+                                                    class="ti ti-eye me-2"></i>3050 Views</a>
+                                            <a href="javscript:void(0);" class="me-3 mb-2"><i
+                                                    class="ti ti-heart me-2"></i>Add to Wishlist</a>
+                                            <a href="javscript:void(0);" class="me-3 mb-2"><i
+                                                    class="ti ti-share me-2"></i>Share Now</a>
+                                        </div> -->
+                                    </div>
+                                </div>
+
+                                <div class="service-wrap mb-4">
+                                    <div class="slider-wrap">
+                                        <div class="owl-carousel service-carousel nav-center mb-3" id="large-img">
+                                            <% service.images.forEach(image=> { %>
+                                                <div class="service-img">
+                                                    <img src="/uploads/service-gallery/<%= image.service_image_filename %>" class="img-fluid"
+                                                        alt="Slider Img">
+                                                </div>
+                                            <% }) %>
+                                        </div>
+                                        <a href="assets/img/services/service-slider-01.jpg" data-fancybox="gallery"
+                                            class="btn btn-white btn-sm view-btn"><i class="feather-image me-1"></i>View
+                                            all <%= service.images.length %> Image(s)</a>
+                                    </div>
+                                    <div class="owl-carousel slider-nav-thumbnails nav-center" id="small-img">
+                                        <% service.images.forEach(image=> { %>
+                                            <div><img src="/uploads/service-gallery/<%= image.service_image_filename %>" class="img-fluid" alt="Slider Img"></div>
+                                        <% }) %>
+                                    </div>
+                                </div>
+
+                                <div class="accordion service-accordion">
+                                    <div class="accordion-item mb-4">
+                                        <h2 class="accordion-header">
+                                            <button class="accordion-button p-0" type="button" data-bs-toggle="collapse"
+                                                data-bs-target="#overview" aria-expanded="false">
+                                                Service Overview
+                                            </button>
+                                        </h2>
+                                        <div id="overview" class="accordion-collapse collapse show">
+                                            <div class="accordion-body border-0 p-0 pt-3">
+                                                <div class="more-text">
+                                                    <p style="text-align: justify;"><%= service.service_description %></p>
+                                                </div>
+                                                <a href="javascript:void(0);"
+                                                    class="link-primary text-decoration-underline more-btn mb-4">Read
+                                                    More</a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="accordion-item mb-4">
+                                        <h2 class="accordion-header">
+                                            <button class="accordion-button p-0" type="button" data-bs-toggle="collapse"
+                                                data-bs-target="#gallery" aria-expanded="false">
+                                                Gallery
+                                            </button>
+                                        </h2>
+                                        <div id="gallery" class="accordion-collapse collapse show">
+                                            <div class="accordion-body border-0 p-0 pt-3">
+                                                <div class="gallery-slider owl-carousel nav-center">
+                                                    <% service.images.forEach(image=> { %>
+                                                        <a href="/uploads/service-gallery/<%= image.service_image_filename %>" data-fancybox="gallery" class="gallery-item">
+                                                            <img src="/uploads/service-gallery/<%= image.service_image_filename %>" alt="img">
+                                                        </a>
+                                                    <% }) %>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <% if (service.service_youtube_video_url) { %>
+                                        <div class="accordion-item mb-4">
+                                            <h2 class="accordion-header">
+                                                <button class="accordion-button p-0" type="button" data-bs-toggle="collapse"
+                                                    data-bs-target="#video" aria-expanded="false">
+                                                    Video
+                                                </button>
+                                            </h2>
+                                            <div id="video" class="accordion-collapse collapse show">
+                                                <div class="accordion-body border-0 p-0 pt-3">
+                                                    <div class="video-wrap">
+                                                        <a class="video-btn video-effect" data-fancybox
+                                                            href="<%= service.service_youtube_video_url %>"><i
+                                                                class="fa-solid fa-play"></i></a>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    <% } %>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card border-0 mb-xl-0 mb-4">
+                            <div class="card-body">
+                                <div class="d-flex align-items-center justify-content-between flex-wrap">
+                                    <h4 class="mb-3">Reviews (<%= service.ratings[0].total_reviews %>)</h4>
+                                    <a href="javascript:void(0);" data-bs-toggle="modal" data-bs-target="#add-review"
+                                        class="btn btn-dark btn-sm mb-3">Write a Review</a>
+                                </div>
+                                <div class="row align-items-center">
+                                    <div class="col-md-5">
+                                        <div class="rating-item bg-light-500 text-center mb-3">
+                                            <h5 class="mb-3">Customer Reviews & Ratings</h5>
+                                            <div class="d-inline-flex align-items-center justify-content-center">
+                                                <% for (let i=0; i < 5; i++) { %>
+                                                    <i class="ti ti-star-filled <%= i < service.ratings[0].average_rating ? 'text-warning' : 'text-muted' %> me-1"></i>
+                                                <% } %>
+                                            </div>
+                                            <p class="mb-3">(<%= service.ratings[0].average_rating || 0 %> out of 5.0)</p>
+                                            <p class="text-gray-9">Based On <%= service.ratings[0].total_reviews %> Reviews</p>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-7">
+                                        <div class="rating-progress mb-3">
+                                            <div class="d-flex align-items-center mb-2">
+                                                <p class="me-2 text-nowrap mb-0">5 Star Ratings</p>
+                                                <div class="progress w-100" role="progressbar" aria-valuenow="<%= (service.ratings[0].five_star_count / service.ratings[0].total_reviews) * 100 %>"
+                                                    aria-valuemin="0" aria-valuemax="100">
+                                                    <div class="progress-bar bg-warning" style="width: <%= (service.ratings[0].five_star_count / service.ratings[0].total_reviews) * 100 %>%"></div>
+                                                </div>
+                                                <p class="progress-count ms-2"><%= service.ratings[0].five_star_count %></p>
+                                            </div>
+                                            <div class="d-flex align-items-center mb-2">
+                                                <p class="me-2 text-nowrap mb-0">4 Star Ratings</p>
+                                                <div class="progress mb-0 w-100" role="progressbar" aria-valuenow="<%= (service.ratings[0].four_star_count / service.ratings[0].total_reviews) * 100 %>"
+                                                    aria-valuemin="0" aria-valuemax="100">
+                                                    <div class="progress-bar bg-warning" style="width: <%= (service.ratings[0].four_star_count / service.ratings[0].total_reviews) * 100 %>%"></div>
+                                                </div>
+                                                <p class="progress-count ms-2"><%= service.ratings[0].four_star_count %></p>
+                                            </div>
+                                            <div class="d-flex align-items-center mb-2">
+                                                <p class="me-2 text-nowrap mb-0">3 Star Ratings</p>
+                                                <div class="progress mb-0 w-100" role="progressbar" aria-valuenow="<%= (service.ratings[0].three_star_count / service.ratings[0].total_reviews) * 100 %>"
+                                                    aria-valuemin="0" aria-valuemax="100">
+                                                    <div class="progress-bar bg-warning" style="width: <%= (service.ratings[0].three_star_count / service.ratings[0].total_reviews) * 100 %>%"></div>
+                                                </div>
+                                                <p class="progress-count ms-2"><%= service.ratings[0].three_star_count %></p>
+                                            </div>
+                                            <div class="d-flex align-items-center mb-2">
+                                                <p class="me-2 text-nowrap mb-0">2 Star Ratings</p>
+                                                <div class="progress mb-0 w-100" role="progressbar" aria-valuenow="<%= (service.ratings[0].two_star_count / service.ratings[0].total_reviews) * 100 %>"
+                                                    aria-valuemin="0" aria-valuemax="100">
+                                                    <div class="progress-bar bg-warning" style="width: <%= (service.ratings[0].two_star_count / service.ratings[0].total_reviews) * 100 %>%"></div>
+                                                </div>
+                                                <p class="progress-count ms-2"><%= service.ratings[0].two_star_count %></p>
+                                            </div>
+                                            <div class="d-flex align-items-center">
+                                                <p class="me-2 text-nowrap mb-0">1 Star Ratings</p>
+                                                <div class="progress mb-0 w-100" role="progressbar" aria-valuenow="<%= (service.ratings[0].one_star_count / service.ratings[0].total_reviews) * 100 %>"
+                                                    aria-valuemin="0" aria-valuemax="100">
+                                                    <div class="progress-bar bg-warning" style="width: <%= (service.ratings[0].one_star_count / service.ratings[0].total_reviews) * 100 %>%"></div>
+                                                </div>
+                                                <p class="progress-count ms-2"><%= service.ratings[0].one_star_count %></p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <% service.reviews.forEach(review=> { %>
+                                    <div class="card review-item mb-3">
+                                        <div class="card-body p-3">
+                                            <div class="review-info">
+                                                <div class="d-flex align-items-center justify-content-between flex-wrap">
+                                                    <div class="d-flex align-items-center mb-2">
+                                                        <span class="avatar avatar-lg me-2 flex-shrink-0">
+                                                            <img src="/uploads/user-images/<%= review.user_avatar_filename %>" class="rounded-circle" alt="img">
+                                                        </span>
+                                                        <div>
+                                                            <h6 class="fs-16 fw-medium"><%= review.user_full_name %></h6>
+                                                            <div class="d-flex align-items-center flex-wrap date-info">
+                                                                <p class="fs-14 mb-0"><%= moment(review.reviewed_at).fromNow() %></p>
+                                                                <p class="fs-14 mb-0"><%= review.review_title %></p>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <span class="badge bg-success d-inline-flex align-items-center mb-2">
+                                                        <i class="ti ti-star-filled me-1"></i><%= review.rating %>
+                                                    </span>
+                                                </div>
+                                                <p class="mb-2"><%= review.review %></p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                <% }) %>
+                                <div class="text-center">
+                                    <a href="javascript:void(0);" class="btn btn-light btn-sm">Load More</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-xl-4 theiaStickySidebar">
+                        <div class="card border-0">
+                            <div class="card-body">
+                                <div class="d-flex align-items-center justify-content-between border-bottom mb-3">
+                                    <div class="d-flex align-items-center">
+                                        <div class="mb-3">
+                                            <p class="fs-14 mb-0">Starts From</p>
+                                            <h4><span class="display-6 fw-bold">$<%= service.service_price %> / hr</span></h4>
+                                        </div>
+                                    </div>
+                                </div>
+                                <a href="javascript:void(0)" data-bs-toggle="modal" data-bs-target="#booking-modal"
+                                    class="btn btn-lg btn-primary w-100 d-flex align-items-center justify-content-center mb-3"><i
+                                        class="ti ti-calendar me-2"></i>Book Service</a>
+                                <a href="javascript:void(0);" data-bs-toggle="modal" data-bs-target="#add-enquiry"
+                                    class="btn btn-lg btn-outline-light d-flex align-items-center justify-content-center w-100"><i
+                                        class="ti ti-mail me-2"></i>Send Enquiry</a>
+                            </div>
+                        </div>
+                        <div class="card border-0">
+                            <div class="card-body">
+                                <h4 class="mb-3">Service Provider</h4>
+                                <div class="provider-info text-center bg-light-500 p-3 mb-3">
+                                    <div class="avatar avatar-xl mb-3">
+                                        <img src="/uploads/user-images/<%= service.provider.user_avatar_filename %>" alt="img"
+                                            class="img-fluid rounded-circle">
+                                        <span class="service-active-dot"><i class="ti ti-check"></i></span>
+                                    </div>
+                                    <h5><%= service.provider.user_full_name %></h5>
+                                    <p class="fs-14"><i class="ti ti-star-filled text-warning me-2"></i><span
+                                            class="text-gray-9 fw-semibold"><%= service.ratings[0].average_rating %></span> (<%= service.ratings[0].total_reviews %> reviews)</p>
+                                </div>
+                                <div class="d-flex align-items-center justify-content-between mb-3">
+                                    <h6 class="fs-16 fw-medium mb-0"><i class="ti ti-user text-default me-2"></i>Member
+                                        Since</h6>
+                                    <p><%= moment(service.provider.user_created_at).format("MMM Do, YYYY") %></p>
+                                </div>
+                                <div class="d-flex align-items-center justify-content-between mb-3">
+                                    <h6 class="fs-16 fw-medium mb-0"><i class="ti ti-map-pin me-1"></i>Address</h6>
+                                    <p><%= service.service_address %></p>
+                                </div>
+                                <div class="d-flex align-items-center justify-content-between mb-3">
+                                    <h6 class="fs-16 fw-medium mb-0"><i class="ti ti-mail me-1"></i>Email</h6>
+                                    <p><a href="mailto:<%= service.provider.user_email %>"
+                                            class="__cf_email__"
+                                            data-cfemail="d2a6babdbfb3a1aaaaaa92b7aab3bfa2beb7fcb1bdbf">[email&#160;protected]</a>
+                                    </p>
+                                </div>
+                                <div class="d-flex align-items-center justify-content-between mb-3">
+                                    <h6 class="fs-16 fw-medium mb-0"><i class="ti ti-phone me-1"></i>Phone</h6>
+                                    <p><%= service.provider.user_phone %></p>
+                                </div>
+                                <div class="d-flex align-items-center justify-content-between mb-3">
+                                    <h6 class="fs-16 fw-medium">Social Profiles</h6>
+                                    <div class="d-flex align-items-center">
+                                        <div class="social-icon">
+                                            <% if (service.provider.user_fb_url) { %>
+                                                <a href="<%= service.provider.user_fb_url %>" class="me-2"><img src="/assets/img/icons/fb.svg" class="img" alt="icon"></a>
+                                            <% } %>
+                                            <% if (service.provider.user_instagram_url) { %>
+                                                <a href="<%= service.provider.user_instagram_url %>" class="me-2"><img src="/assets/img/icons/instagram.svg" class="img" alt="icon"></a>
+                                            <% } %>
+                                            <% if (service.provider.user_x_url) { %>
+                                                <a href="<%= service.provider.user_x_url %>" class="me-2"><img src="/assets/img/icons/twitter.svg" class="img" alt="icon"></a>
+                                            <% } %>
+                                            <% if (service.provider.user_whatsapp_url) { %>
+                                                <a href="<%= service.provider.user_whatsapp_url %>" class="me-2"><img src="/assets/img/icons/whatsapp.svg" class="img" alt="icon"></a>
+                                            <% } %>
+                                            <% if (service.provider.user_youtube_url) { %>
+                                                <a href="<%= service.provider.user_youtube_url %>" class="me-2"><img src="/assets/img/icons/youtube.svg" class="img" alt="icon"></a>
+                                            <% } %>
+                                            <% if (service.provider.user_linkedin_url) { %>
+                                                <a href="<%= service.provider.user_linkedin_url %>" class="me-2"><img src="/assets/img/icons/linkedin.svg" class="img" alt="icon"></a>
+                                            <% } %>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row border-top pt-3 g-2">
+                                    <div class="col-sm-6">
+                                        <a href="javascript:void(0);" data-bs-toggle="modal"
+                                            data-bs-target="#add-enquiry"
+                                            class="btn btn-dark btn-lg fs-14 px-1 w-100"><i
+                                                class="ti ti-user me-2"></i>Contact Provider</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- <div class="card border-0">
+                            <div class="card-body">
+                                <h4 class="mb-3">Location</h4>
+                                <div class="map-wrap">
+                                    <iframe
+                                        src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d6509170.989457427!2d-123.80081967108484!3d37.192957227641294!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x808fb9fe5f285e3d%3A0x8b5109a227086f55!2sCalifornia%2C%20USA!5e0!3m2!1sen!2sin!4v1669181581381!5m2!1sen!2sin"
+                                        allowfullscreen loading="lazy" referrerpolicy="no-referrer-when-downgrade"
+                                        class="contact-map"></iframe>
+                                    <div class="map-location bg-white d-flex align-items-center">
+                                        <div class="d-flex align-items-center me-2">
+                                            <span class="avatar avatar-lg flex-shrink-0">
+                                                <img src="assets/img/services/service-thumb-01.jpg" alt="img"
+                                                    class="br-10">
+                                            </span>
+                                            <div class="ms-2 overflow-hidden">
+                                                <p class="two-line-ellipsis">12301 Lake Underhill Rd, Suite 126,
+                                                    Orlando, 32828</p>
+                                            </div>
+                                        </div>
+                                        <span>
+                                            <i class="feather-send fs-16"></i>
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <a href="#" class="text-danger fs-14"><i class="ti ti-pennant-filled me-2"></i>Report
+                            Provider</a> -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <%- include('./partials/footer') %>
+
+    <div class="modal fade" id="add-review" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header d-flex align-items-center justify-content-between">
+                    <h5>Add Review</h5>
+                    <a href="javascript:void(0);" data-bs-dismiss="modal" aria-label="Close"><i
+                            class="ti ti-circle-x-filled fs-20"></i></a>
+                </div>
+                <form id="add-review-form">
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <label class="form-label">Rate your Review</label>
+                            <div class="rating-select mb-0">
+                                <a href="javascript:void(0);" rating="1" class="rating"><i class="fas fa-star"></i></a>
+                                <a href="javascript:void(0);" rating="2" class="rating"><i class="fas fa-star"></i></a>
+                                <a href="javascript:void(0);" rating="3" class="rating"><i class="fas fa-star"></i></a>
+                                <a href="javascript:void(0);" rating="4" class="rating"><i class="fas fa-star"></i></a>
+                                <a href="javascript:void(0);" rating="5" class="rating"><i class="fas fa-star"></i></a>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Review Title</label>
+                            <input type="text" class="form-control required review_title" name="review_title" />
+                        </div>
+                        <div class="mb-0">
+                            <label class="form-label">Write Your Review</label>
+                            <textarea class="form-control required" name="review" rows="3"></textarea>
+                        </div>
+                        <input type="hidden" name="service_id" class="required service_id" value="<%= service.service_id %>"/>
+                        <input type="hidden" name="rating" class="required review-rating"/>
+                    </div>
+                    <div class="modal-footer d-flex align-items-center justify-content-end">
+                        <a href="javascript:void(0);" class="btn btn-light me-2" data-bs-dismiss="modal">Cancel</a>
+                        <button type="submit" class="btn btn-primary">Submit</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="add-enquiry" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header d-flex align-items-center justify-content-between">
+                    <h5>Enquiry</h5>
+                    <a href="javascript:void(0);" data-bs-dismiss="modal" aria-label="Close"><i
+                            class="ti ti-circle-x-filled fs-20"></i></a>
+                </div>
+                <form id="enquiry-form">
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <label class="form-label">Subject</label>
+                            <input type="text" class="form-control message_subject required" name="message_subject">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Name</label>
+                            <input type="text" class="form-control message_sender_name required" name="message_sender_name">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Email Address</label>
+                            <input type="email" class="form-control message_sender_email_address required" name="message_sender_email_address">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Phone Number</label>
+                            <input type="text" class="form-control message_sender_phone_number required" name="message_sender_phone_number">
+                        </div>
+                        <div class="mb-0">
+                            <label class="form-label">Write us a Message</label>
+                            <textarea class="form-control required message" rows="3" name="message"></textarea>
+                        </div>
+                        <input type="hidden" class="required" name="provider_id" value="<%= service.subscriber_id %>" />
+                    </div>
+                    <div class="modal-footer d-flex align-items-center justify-content-end">
+                        <a href="javascript:void(0);" class="btn btn-light me-2">Cancel</a>
+                        <button type="submit" class="btn btn-primary">Submit</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade custom-modal" id="booking-modal">
+        <div class="modal-dialog modal-dialog-centered modal-xl">
+            <div class="modal-content">
+                <div class="modal-header d-flex align-items-center justify-content-between border-bottom">
+                    <h5 class="modal-title"><%= service.service_title %></h5>
+                    <a href="javascript:void(0);" data-bs-dismiss="modal" aria-label="Close"><i
+                            class="ti ti-circle-x-filled fs-20"></i></a>
+                </div>
+                <form id="service-booking-form">
+                    <div class="modal-body">
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="row">
+                                    <div class="col-md-4">
+                                        <div class="mb-3">
+                                            <label class="form-label">Full Name *</label>
+                                            <input type="text" class="form-control required client_fullname"
+                                                name="client_fullname" placeholder="Your fullname">
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="mb-3">
+                                            <label class="form-label">Email Address *</label>
+                                            <input type="email" class="form-control required client_email"
+                                                name="client_email" placeholder="Valid email address">
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="mb-3">
+                                            <label class="form-label">Phone Number *</label>
+                                            <input type="text" class="form-control required client_phone"
+                                                name="client_phone" placeholder="Phone Number">
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-3">
+                                        <div class="mb-3">
+                                            <label class="form-label">Start Date *</label>
+                                            <input type="date" class="form-control start_date" name="start_date"
+                                                placeholder="Start date of service delivery">
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <div class="mb-3">
+                                            <label class="form-label">Start Time *</label>
+                                            <input type="time" class="form-control start_time" name="start_time"
+                                                placeholder="Start Time of service delivery">
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <div class="mb-3">
+                                            <label class="form-label">End Date *</label>
+                                            <input type="date" class="form-control required end_date" name="end_date"
+                                                placeholder="End Date of service delivery">
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <div class="mb-3">
+                                            <label class="form-label">End Time *</label>
+                                            <input type="time" class="form-control required end_time" name="end_time"
+                                                placeholder="End time of service delivery">
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <div class="mb-3">
+                                            <label class="form-label">Address *</label>
+                                            <input type="text" class="form-control required client_address"
+                                                name="client_address" placeholder="Your address for service delivery">
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <div class="mb-3">
+                                            <label class="form-label">Remarks</label>
+                                            <textarea class="form-control remarks" name="remarks" rows="5"
+                                                placeholder="Additional requests if any"></textarea>
+                                        </div>
+                                    </div>
+                                </div>
+                                <input type="hidden" class="required service_id" name="service_id" value="<%= service.service_id %>" />
+                                <input type="hidden" class="required service_price" value="<%= service.service_price %>" />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn bg-gray" data-bs-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn btn-dark">Book Service</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="back-to-top">
+        <a class="back-to-top-icon align-items-center justify-content-center d-flex" href="#top"><i
+                class="fa-solid fa-arrow-up"></i></a>
+    </div>
+
+    <div class="xb-cursor tx-js-cursor">
+        <div class="xb-cursor-wrapper">
+            <div class="xb-cursor--follower xb-js-follower"></div>
+        </div>
+    </div>
+
+
+    <%- include('./partials/auth-modals') %>
+    <%- include('./partials/scripts') %>
+    <script src="https://js.paystack.co/v2/inline.js"></script>
+    <script src="/assets/js/pages/service.js"></script>
+</body>
+</html>

@@ -72,5 +72,17 @@ router.get(
 	checkAuth.verifyToken,
 	serviceController.getServiceBookings
 );
+router.post(
+	"/reviews",
+	checkAuth.verifyToken,
+	validators.postReview,
+	serviceController.postReview
+);
+router.post(
+	"/booking-status",
+	checkAuth.verifyToken,
+	validators.updateBookingStatus,
+	serviceController.updateBookingStatus
+);
 
 module.exports = router;

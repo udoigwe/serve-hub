@@ -440,4 +440,122 @@ module.exports = {
 			connection ? connection.release() : null;
 		}
 	},
+	becomeAProvider: async (req, res, next) => {
+		const user_id = req.userDecodedData.user_id;
+		const user_fb_url = !req.body.user_fb_url ? null : req.body.user_fb_url;
+		const user_instagram_url = !req.body.user_instagram_url
+			? null
+			: req.body.user_instagram_url;
+		const user_x_url = !req.body.user_x_url ? null : req.body.user_x_url;
+		const user_whatsapp_url = !req.body.user_whatsapp_url
+			? null
+			: req.body.user_whatsapp_url;
+		const user_youtube_url = !req.body.user_youtube_url
+			? null
+			: req.body.user_youtube_url;
+		const user_linkedin_url = !req.body.user_linkedin_url
+			? null
+			: req.body.user_linkedin_url;
+
+		const query = `
+            SELECT *
+            FROM users
+            WHERE user_id = ? 
+            LIMIT 1
+        `;
+
+		let connection;
+
+		const uploadPath = "public/uploads/certificates/";
+
+		try {
+			// Get a connection from the pool
+			connection = await pool.getConnection();
+
+			//Start database transaction
+			await connection.beginTransaction();
+
+			//check if email already exists
+			const [users] = await connection.execute(query, [user_id]);
+
+			if (users.length === 0) {
+				throw new CustomError(404, "User does not exist");
+			}
+
+			if (users[0].user_category === "Service Provider") {
+				throw new CustomError(
+					400,
+					"Sorry You are already a service provider"
+				);
+			}
+
+			if (users[0].user_category === "Admin") {
+				throw new CustomError(
+					400,
+					"Sorry You are already an administrator"
+				);
+			}
+
+			const user = users[0];
+
+			let updateQuery = `
+                UPDATE users
+                SET
+                    user_category = 'Service Provider',
+                    user_fb_url = ?,
+                    user_instagram_url = ?,
+                    user_x_url = ?,
+                    user_whatsapp_url = ?,
+                    user_youtube_url = ?,
+                    user_linkedin_url = ?
+            `;
+
+			const updateQueryParams = [
+				user_fb_url,
+				user_instagram_url,
+				user_x_url,
+				user_whatsapp_url,
+				user_youtube_url,
+				user_linkedin_url,
+			];
+
+			let certificate = req.files.certificate_of_incoporation;
+			const newCertificateFileName = getNewFileName(
+				certificate,
+				uuidv4()
+			);
+
+			if (
+				await fileExists(
+					uploadPath + user.certificate_of_incoporation_filename
+				)
+			) {
+				await fs.unlink(
+					uploadPath + user.certificate_of_incoporation_filename
+				);
+			}
+
+			await certificate.mv(uploadPath + newCertificateFileName);
+
+			updateQuery += `, certificate_of_incoporation_filename = ?`;
+			updateQueryParams.push(newCertificateFileName);
+
+			updateQuery += ` WHERE user_id = ?`;
+			updateQueryParams.push(user_id);
+
+			await connection.execute(updateQuery, updateQueryParams);
+
+			await connection.commit();
+
+			res.json({
+				error: false,
+				message: `Congratulations ${user.user_full_name}. You are now a service provider. Sign Out from your current account and sign back in to visit your dashboard to start posting your businesses`,
+			});
+		} catch (e) {
+			connection ? connection.rollback() : null;
+			next(e);
+		} finally {
+			connection ? connection.release() : null;
+		}
+	},
 };

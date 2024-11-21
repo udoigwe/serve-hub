@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Nov 11, 2024 at 06:13 PM
+-- Generation Time: Nov 21, 2024 at 02:08 PM
 -- Server version: 10.4.28-MariaDB
 -- PHP Version: 8.2.4
 
@@ -29,11 +29,23 @@ SET time_zone = "+00:00";
 
 CREATE TABLE `messages` (
   `message_id` int(11) NOT NULL,
+  `provider_id` int(11) DEFAULT NULL,
   `message_subject` varchar(255) NOT NULL,
-  `message_sender` varchar(255) NOT NULL,
+  `message_sender_name` varchar(255) NOT NULL,
+  `message_sender_email_address` varchar(255) NOT NULL,
+  `message_sender_phone_number` varchar(255) NOT NULL,
   `message` text NOT NULL,
-  `sent_at` datetime NOT NULL
+  `sent_at` datetime NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `messages`
+--
+
+INSERT INTO `messages` (`message_id`, `provider_id`, `message_subject`, `message_sender_name`, `message_sender_email_address`, `message_sender_phone_number`, `message`, `sent_at`) VALUES
+(1, 6, 'Enquiry', 'Okoli', 'okoli@gmail.com', '0908192819', 'I just wanted to know if a discount to be applied assuming i do 10hours', '2024-11-20 21:20:37'),
+(2, 6, 'Follow Up', 'Okoli Chuks', 'okoli@gmail.com', '09089090909', 'I am following up on the email i sent a couple of days ago.', '2024-11-20 21:26:56'),
+(3, 6, 'Pricing', 'Samuel Nwokoma', 'sammy@gmail.com', '09089098909', 'I want to know if a discount could be applied for me if i do 3hrs', '2024-11-21 13:57:24');
 
 -- --------------------------------------------------------
 
@@ -45,11 +57,44 @@ CREATE TABLE `reviews` (
   `review_id` int(11) NOT NULL,
   `service_id` int(11) DEFAULT NULL,
   `reviewer_id` int(11) DEFAULT NULL,
+  `review_title` varchar(255) NOT NULL,
   `review` longtext NOT NULL,
   `rating` float NOT NULL,
   `reviewed_at` datetime NOT NULL DEFAULT current_timestamp(),
   `review_status` enum('Published','Unpublished') NOT NULL DEFAULT 'Published'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `reviews`
+--
+
+INSERT INTO `reviews` (`review_id`, `service_id`, `reviewer_id`, `review_title`, `review`, `rating`, `reviewed_at`, `review_status`) VALUES
+(1, 9, 6, 'Great Service', 'I recommedn this barbing saloon to anyone who enjoys looking good', 4, '2024-11-17 22:15:07', 'Published'),
+(2, 9, 2, 'Best Saloon', 'Everywhere still good', 5, '2024-11-17 22:27:44', 'Published'),
+(3, 9, 3, 'Bam', 'These guys are out of this world', 5, '2024-11-17 22:31:09', 'Published'),
+(4, 9, 4, 'Excellent delivery', 'This service provider is committed to timely delivery', 5, '2024-11-19 22:50:42', 'Published'),
+(5, 7, 4, 'Best In Town', 'This is the best in town in terms of barbing', 5, '2024-11-20 21:41:01', 'Published'),
+(6, 7, 2, 'Nice Service', 'This is a top-notche service provider', 5, '2024-11-21 13:53:06', 'Published');
+
+-- --------------------------------------------------------
+
+--
+-- Stand-in structure for view `reviews_view`
+-- (See below for the actual view)
+--
+CREATE TABLE `reviews_view` (
+`review_id` int(11)
+,`service_id` int(11)
+,`reviewer_id` int(11)
+,`review_title` varchar(255)
+,`review` longtext
+,`rating` float
+,`reviewed_at` datetime
+,`review_status` enum('Published','Unpublished')
+,`service_title` varchar(255)
+,`user_full_name` varchar(255)
+,`user_avatar_filename` varchar(255)
+);
 
 -- --------------------------------------------------------
 
@@ -82,7 +127,9 @@ INSERT INTO `services` (`service_id`, `subscription_id`, `service_category_id`, 
 (4, 23, 4, 'Elliot Barbing Services', 'elliot_barbing_services', 13, NULL, 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nam quis posuere dolor. Maecenas imperdiet feugiat massa, eu fermentum neque pretium at. Fusce ultricies rutrum tellus vitae rutrum. Quisque mauris dui, tempor nec urna sed, cursus tincidunt massa. Interdum et malesuada fames ac ante ipsum primis in faucibus. Duis eget lacus elit. Vestibulum viverra enim nec magna vehicula rhoncus vitae nec lectus. Pellentesque hendrerit non lectus eu sagittis. Donec dignissim ipsum eu dolor facilisis, ac dapibus diam fermentum. In quis fermentum felis. In dictum ipsum ac facilisis venenatis. Sed aliquet sodales ante ullamcorper cursus. Proin ut dignissim augue.\r\n\r\nCurabitur lacinia at lectus id vulputate. Ut at orci augue. Praesent ac nulla id eros molestie convallis vulputate sed nulla. Ut venenatis, sem posuere commodo pretium, erat purus laoreet urna, ac pretium ipsum lorem ac nisl. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia curae; Donec erat quam, dignissim eu nisi vel, luctus accumsan arcu. Curabitur gravida ut quam eu vehicula. Suspendisse vehicula cursus lectus vitae accumsan. Quisque ut nibh imperdiet, accumsan risus eget, egestas mi.\r\n\r\nMaecenas rutrum eros magna, a mollis neque hendrerit vel. Nunc id ultrices metus, non tincidunt eros. Suspendisse iaculis tortor nibh, sed hendrerit turpis hendrerit quis. Curabitur id tortor nec justo fringilla tristique. Maecenas non arcu lorem. Integer vitae mauris lacus. Ut luctus neque id sapien porta, id porttitor nisl fringilla. Nam aliquam risus sem, nec dapibus augue imperdiet vel. Proin tempus orci nunc, sed bibendum justo blandit tincidunt. Proin sed nisi lectus. Donec tincidunt efficitur ex. In tristique purus ut eros vehicula, quis convallis leo tempus.\r\n\r\nDonec vitae nisi nibh. In non maximus mi, sed sollicitudin ex. Quisque eu ullamcorper tellus, non interdum ipsum. Aliquam condimentum elit aliquam ipsum tincidunt tristique. In hac habitasse platea dictumst. Praesent consequat ex tempus, porta libero a, ornare tortor. Donec id arcu eget orci maximus placerat vel quis mauris.\r\n\r\nNulla pretium elementum ligula, eu maximus magna ullamcorper et. Integer viverra tellus dui, sollicitudin vulputate velit vehicula mollis. Quisque urna nibh, tincidunt non tempor quis, rutrum ut mi. Quisque quis magna et libero bibendum interdum nec eu orci. Nunc vitae nisl tempus, tristique erat et, vestibulum quam. Duis efficitur, diam in dignissim aliquet, dolor elit sagittis turpis, sit amet vestibulum nunc justo at tellus. Integer felis justo, porta a diam in, commodo ornare elit. Curabitur vel iaculis nisl. Pellentesque molestie vehicula dolor, et blandit massa auctor et.', 'Vermont', NULL, NULL, NULL, '2024-11-07 15:12:31', 'Published'),
 (5, 23, 5, 'Zoba Artists', 'zoba_artists', 23, NULL, 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nam quis posuere dolor. Maecenas imperdiet feugiat massa, eu fermentum neque pretium at. Fusce ultricies rutrum tellus vitae rutrum. Quisque mauris dui, tempor nec urna sed, cursus tincidunt massa. Interdum et malesuada fames ac ante ipsum primis in faucibus. Duis eget lacus elit. Vestibulum viverra enim nec magna vehicula rhoncus vitae nec lectus. Pellentesque hendrerit non lectus eu sagittis. Donec dignissim ipsum eu dolor facilisis, ac dapibus diam fermentum. In quis fermentum felis. In dictum ipsum ac facilisis venenatis. Sed aliquet sodales ante ullamcorper cursus. Proin ut dignissim augue.\r\n\r\nCurabitur lacinia at lectus id vulputate. Ut at orci augue. Praesent ac nulla id eros molestie convallis vulputate sed nulla. Ut venenatis, sem posuere commodo pretium, erat purus laoreet urna, ac pretium ipsum lorem ac nisl. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia curae; Donec erat quam, dignissim eu nisi vel, luctus accumsan arcu. Curabitur gravida ut quam eu vehicula. Suspendisse vehicula cursus lectus vitae accumsan. Quisque ut nibh imperdiet, accumsan risus eget, egestas mi.\r\n\r\nMaecenas rutrum eros magna, a mollis neque hendrerit vel. Nunc id ultrices metus, non tincidunt eros. Suspendisse iaculis tortor nibh, sed hendrerit turpis hendrerit quis. Curabitur id tortor nec justo fringilla tristique. Maecenas non arcu lorem. Integer vitae mauris lacus. Ut luctus neque id sapien porta, id porttitor nisl fringilla. Nam aliquam risus sem, nec dapibus augue imperdiet vel. Proin tempus orci nunc, sed bibendum justo blandit tincidunt. Proin sed nisi lectus. Donec tincidunt efficitur ex. In tristique purus ut eros vehicula, quis convallis leo tempus.\r\n\r\nDonec vitae nisi nibh. In non maximus mi, sed sollicitudin ex. Quisque eu ullamcorper tellus, non interdum ipsum. Aliquam condimentum elit aliquam ipsum tincidunt tristique. In hac habitasse platea dictumst. Praesent consequat ex tempus, porta libero a, ornare tortor. Donec id arcu eget orci maximus placerat vel quis mauris.\r\n\r\nNulla pretium elementum ligula, eu maximus magna ullamcorper et. Integer viverra tellus dui, sollicitudin vulputate velit vehicula mollis. Quisque urna nibh, tincidunt non tempor quis, rutrum ut mi. Quisque quis magna et libero bibendum interdum nec eu orci. Nunc vitae nisl tempus, tristique erat et, vestibulum quam. Duis efficitur, diam in dignissim aliquet, dolor elit sagittis turpis, sit amet vestibulum nunc justo at tellus. Integer felis justo, porta a diam in, commodo ornare elit. Curabitur vel iaculis nisl. Pellentesque molestie vehicula dolor, et blandit massa auctor et.', 'Minnesotta', NULL, NULL, NULL, '2024-11-07 15:16:42', 'Published'),
 (6, 23, 3, 'Wale Cleaners', 'wale_cleaners', 24, NULL, 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nam quis posuere dolor. Maecenas imperdiet feugiat massa, eu fermentum neque pretium at. Fusce ultricies rutrum tellus vitae rutrum. Quisque mauris dui, tempor nec urna sed, cursus tincidunt massa. Interdum et malesuada fames ac ante ipsum primis in faucibus. Duis eget lacus elit. Vestibulum viverra enim nec magna vehicula rhoncus vitae nec lectus. Pellentesque hendrerit non lectus eu sagittis. Donec dignissim ipsum eu dolor facilisis, ac dapibus diam fermentum. In quis fermentum felis. In dictum ipsum ac facilisis venenatis. Sed aliquet sodales ante ullamcorper cursus. Proin ut dignissim augue.\r\n\r\nCurabitur lacinia at lectus id vulputate. Ut at orci augue. Praesent ac nulla id eros molestie convallis vulputate sed nulla. Ut venenatis, sem posuere commodo pretium, erat purus laoreet urna, ac pretium ipsum lorem ac nisl. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia curae; Donec erat quam, dignissim eu nisi vel, luctus accumsan arcu. Curabitur gravida ut quam eu vehicula. Suspendisse vehicula cursus lectus vitae accumsan. Quisque ut nibh imperdiet, accumsan risus eget, egestas mi.\r\n\r\nMaecenas rutrum eros magna, a mollis neque hendrerit vel. Nunc id ultrices metus, non tincidunt eros. Suspendisse iaculis tortor nibh, sed hendrerit turpis hendrerit quis. Curabitur id tortor nec justo fringilla tristique. Maecenas non arcu lorem. Integer vitae mauris lacus. Ut luctus neque id sapien porta, id porttitor nisl fringilla. Nam aliquam risus sem, nec dapibus augue imperdiet vel. Proin tempus orci nunc, sed bibendum justo blandit tincidunt. Proin sed nisi lectus. Donec tincidunt efficitur ex. In tristique purus ut eros vehicula, quis convallis leo tempus.\r\n\r\nDonec vitae nisi nibh. In non maximus mi, sed sollicitudin ex. Quisque eu ullamcorper tellus, non interdum ipsum. Aliquam condimentum elit aliquam ipsum tincidunt tristique. In hac habitasse platea dictumst. Praesent consequat ex tempus, porta libero a, ornare tortor. Donec id arcu eget orci maximus placerat vel quis mauris.\r\n\r\nNulla pretium elementum ligula, eu maximus magna ullamcorper et. Integer viverra tellus dui, sollicitudin vulputate velit vehicula mollis. Quisque urna nibh, tincidunt non tempor quis, rutrum ut mi. Quisque quis magna et libero bibendum interdum nec eu orci. Nunc vitae nisl tempus, tristique erat et, vestibulum quam. Duis efficitur, diam in dignissim aliquet, dolor elit sagittis turpis, sit amet vestibulum nunc justo at tellus. Integer felis justo, porta a diam in, commodo ornare elit. Curabitur vel iaculis nisl. Pellentesque molestie vehicula dolor, et blandit massa auctor et.', 'Minnesota', NULL, NULL, NULL, '2024-11-07 15:21:49', 'Published'),
-(7, 23, 4, 'ManeR  Barbing', 'maner_barbing', 24, NULL, 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nam quis posuere dolor. Maecenas imperdiet feugiat massa, eu fermentum neque pretium at. Fusce ultricies rutrum tellus vitae rutrum. Quisque mauris dui, tempor nec urna sed, cursus tincidunt massa. Interdum et malesuada fames ac ante ipsum primis in faucibus. Duis eget lacus elit. Vestibulum viverra enim nec magna vehicula rhoncus vitae nec lectus. Pellentesque hendrerit non lectus eu sagittis. Donec dignissim ipsum eu dolor facilisis, ac dapibus diam fermentum. In quis fermentum felis. In dictum ipsum ac facilisis venenatis. Sed aliquet sodales ante ullamcorper cursus. Proin ut dignissim augue.\r\n\r\nCurabitur lacinia at lectus id vulputate. Ut at orci augue. Praesent ac nulla id eros molestie convallis vulputate sed nulla. Ut venenatis, sem posuere commodo pretium, erat purus laoreet urna, ac pretium ipsum lorem ac nisl. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia curae; Donec erat quam, dignissim eu nisi vel, luctus accumsan arcu. Curabitur gravida ut quam eu vehicula. Suspendisse vehicula cursus lectus vitae accumsan. Quisque ut nibh imperdiet, accumsan risus eget, egestas mi.\r\n\r\nMaecenas rutrum eros magna, a mollis neque hendrerit vel. Nunc id ultrices metus, non tincidunt eros. Suspendisse iaculis tortor nibh, sed hendrerit turpis hendrerit quis. Curabitur id tortor nec justo fringilla tristique. Maecenas non arcu lorem. Integer vitae mauris lacus. Ut luctus neque id sapien porta, id porttitor nisl fringilla. Nam aliquam risus sem, nec dapibus augue imperdiet vel. Proin tempus orci nunc, sed bibendum justo blandit tincidunt. Proin sed nisi lectus. Donec tincidunt efficitur ex. In tristique purus ut eros vehicula, quis convallis leo tempus.\r\n\r\nDonec vitae nisi nibh. In non maximus mi, sed sollicitudin ex. Quisque eu ullamcorper tellus, non interdum ipsum. Aliquam condimentum elit aliquam ipsum tincidunt tristique. In hac habitasse platea dictumst. Praesent consequat ex tempus, porta libero a, ornare tortor. Donec id arcu eget orci maximus placerat vel quis mauris.\r\n\r\nNulla pretium elementum ligula, eu maximus magna ullamcorper et. Integer viverra tellus dui, sollicitudin vulputate velit vehicula mollis. Quisque urna nibh, tincidunt non tempor quis, rutrum ut mi. Quisque quis magna et libero bibendum interdum nec eu orci. Nunc vitae nisl tempus, tristique erat et, vestibulum quam. Duis efficitur, diam in dignissim aliquet, dolor elit sagittis turpis, sit amet vestibulum nunc justo at tellus. Integer felis justo, porta a diam in, commodo ornare elit. Curabitur vel iaculis nisl. Pellentesque molestie vehicula dolor, et blandit massa auctor et.', 'Minnesota', NULL, NULL, NULL, '2024-11-07 16:26:01', 'Published');
+(7, 23, 4, 'ManeR  Barbing', 'maner_barbing', 24, NULL, 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nam quis posuere dolor. Maecenas imperdiet feugiat massa, eu fermentum neque pretium at. Fusce ultricies rutrum tellus vitae rutrum. Quisque mauris dui, tempor nec urna sed, cursus tincidunt massa. Interdum et malesuada fames ac ante ipsum primis in faucibus. Duis eget lacus elit. Vestibulum viverra enim nec magna vehicula rhoncus vitae nec lectus. Pellentesque hendrerit non lectus eu sagittis. Donec dignissim ipsum eu dolor facilisis, ac dapibus diam fermentum. In quis fermentum felis. In dictum ipsum ac facilisis venenatis. Sed aliquet sodales ante ullamcorper cursus. Proin ut dignissim augue.\r\n\r\nCurabitur lacinia at lectus id vulputate. Ut at orci augue. Praesent ac nulla id eros molestie convallis vulputate sed nulla. Ut venenatis, sem posuere commodo pretium, erat purus laoreet urna, ac pretium ipsum lorem ac nisl. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia curae; Donec erat quam, dignissim eu nisi vel, luctus accumsan arcu. Curabitur gravida ut quam eu vehicula. Suspendisse vehicula cursus lectus vitae accumsan. Quisque ut nibh imperdiet, accumsan risus eget, egestas mi.\r\n\r\nMaecenas rutrum eros magna, a mollis neque hendrerit vel. Nunc id ultrices metus, non tincidunt eros. Suspendisse iaculis tortor nibh, sed hendrerit turpis hendrerit quis. Curabitur id tortor nec justo fringilla tristique. Maecenas non arcu lorem. Integer vitae mauris lacus. Ut luctus neque id sapien porta, id porttitor nisl fringilla. Nam aliquam risus sem, nec dapibus augue imperdiet vel. Proin tempus orci nunc, sed bibendum justo blandit tincidunt. Proin sed nisi lectus. Donec tincidunt efficitur ex. In tristique purus ut eros vehicula, quis convallis leo tempus.\r\n\r\nDonec vitae nisi nibh. In non maximus mi, sed sollicitudin ex. Quisque eu ullamcorper tellus, non interdum ipsum. Aliquam condimentum elit aliquam ipsum tincidunt tristique. In hac habitasse platea dictumst. Praesent consequat ex tempus, porta libero a, ornare tortor. Donec id arcu eget orci maximus placerat vel quis mauris.\r\n\r\nNulla pretium elementum ligula, eu maximus magna ullamcorper et. Integer viverra tellus dui, sollicitudin vulputate velit vehicula mollis. Quisque urna nibh, tincidunt non tempor quis, rutrum ut mi. Quisque quis magna et libero bibendum interdum nec eu orci. Nunc vitae nisl tempus, tristique erat et, vestibulum quam. Duis efficitur, diam in dignissim aliquet, dolor elit sagittis turpis, sit amet vestibulum nunc justo at tellus. Integer felis justo, porta a diam in, commodo ornare elit. Curabitur vel iaculis nisl. Pellentesque molestie vehicula dolor, et blandit massa auctor et.', 'Minnesota', NULL, NULL, 'https://www.youtube.com/watch?v=Vdp6x7Bibtk', '2024-11-07 16:26:01', 'Published'),
+(8, 26, 3, 'Mega Cleaners', 'mega_cleaners', 13, NULL, 'This is a top-notch cleanig service This is a top-notch cleanig serviceThis is a top-notch cleanig serviceThis is a top-notch cleanig serviceThis is a top-notch cleanig serviceThis is a top-notch cleanig serviceThis is a top-notch cleanig serviceThis is a top-notch cleanig serviceThis is a top-notch cleanig serviceThis is a top-notch cleanig serviceThis is a top-notch cleanig serviceThis is a top-notch cleanig serviceThis is a top-notch cleanig serviceThis is a top-notch cleanig serviceThis is a top-notch cleanig serviceThis is a top-notch cleanig serviceThis is a top-notch cleanig serviceThis is a top-notch cleanig service', 'North Carolina', NULL, NULL, 'https://www.youtube.com/watch?v=Vdp6x7Bibtk', '2024-11-11 21:05:46', 'Published'),
+(9, 26, 4, 'Sammy Barbing Saloon', 'sammy_barbing_saloon', 13, NULL, 'This is a top-notch barbing service', 'North Carolina', NULL, NULL, 'https://www.youtube.com/watch?v=Vdp6x7Bibtk', '2024-11-11 21:08:32', 'Published');
 
 -- --------------------------------------------------------
 
@@ -114,8 +161,10 @@ CREATE TABLE `service_bookings` (
 --
 
 INSERT INTO `service_bookings` (`service_booking_id`, `service_id`, `start_time`, `end_time`, `client_fullname`, `client_email`, `client_phone`, `client_address`, `remarks`, `amount_paid`, `transaction_id`, `discount`, `expected_payout`, `booked_at`, `booking_status`, `payout_status`) VALUES
-(1, 7, '2024-11-12 07:59:00', '2024-11-12 19:54:00', 'Hunter Jonah', 'hunter@gmail.com', '+1 909 1928 918', 'Vermount', 'Very snappy', 286, 'T919995694656204', 0, 254.54, '2024-11-11 04:50:28', 'Booked', 'Pending Payout'),
-(2, 4, '2024-11-13 09:56:00', '2024-11-14 10:57:00', 'Hosiah Micah', 'hosiah@yahoo.co.uk', '+1 709 8192 817', 'Kansas City', 'More than a days job', 325.21666666666664, 'T095249430667411', 0, 289.4428333333333, '2024-11-11 04:52:30', 'Booked', 'Pending Payout');
+(1, 7, '2024-11-12 07:59:00', '2024-11-12 19:54:00', 'Hunter Jonah', 'hunter@gmail.com', '+1 909 1928 918', 'Vermount', 'Very snappy', 286, 'T919995694656204', 0, 254.54, '2024-11-11 04:50:28', 'Completed', 'Scheduled For Payout'),
+(2, 4, '2024-11-13 09:56:00', '2024-11-14 10:57:00', 'Hosiah Micah', 'hosiah@yahoo.co.uk', '+1 709 8192 817', 'Kansas City', 'More than a days job', 325.21666666666664, 'T095249430667411', 0, 289.4428333333333, '2024-11-11 04:52:30', 'Booked', 'Pending Payout'),
+(3, 7, '2024-11-21 01:41:00', '2024-11-21 02:41:00', 'Okoli Okojie', 'okoli@gmail.com', '09099098909', 'Veront Close', 'This should be a sharp delivery', 24, 'T698322344451152', 0, 21.36, '2024-11-20 21:38:25', 'Booked', 'Pending Payout'),
+(4, 7, '2024-11-21 16:00:00', '2024-11-21 17:00:00', 'Samuel Nwokom', 'sammy@gmail.com', '09087181728', 'Minnesota', 'Please be punctual', 24, 'T315735422402235', 0, 21.36, '2024-11-21 13:58:21', 'Provider Accepted', 'Pending Payout');
 
 -- --------------------------------------------------------
 
@@ -169,7 +218,8 @@ CREATE TABLE `service_categories` (
 INSERT INTO `service_categories` (`service_category_id`, `service_category`, `service_category_slug`, `service_category_status`) VALUES
 (3, 'Industrial Cleaning', 'industrial_cleaning', 'Active'),
 (4, 'Professional Barbing', 'professional_barbing', 'Active'),
-(5, 'Makeup Artistry', 'makeup_artistry', 'Active');
+(5, 'Makeup Artistry', 'makeup_artistry', 'Active'),
+(6, 'Manicure & Pedicure', 'manicure_pedicure', 'Active');
 
 -- --------------------------------------------------------
 
@@ -243,7 +293,13 @@ INSERT INTO `service_images` (`service_image_id`, `service_id`, `service_image_f
 (36, 7, '0a24f964-f2c6-4b1e-ae5a-d71b1fb0b947.jpg', 'image/jpeg', '261797', '2024-11-07 17:44:55', 'Published'),
 (37, 6, '77711766-5512-4a41-bb1f-14e6286b9a1f.jpg', 'image/jpeg', '62772', '2024-11-07 17:45:17', 'Published'),
 (38, 6, '85618921-4814-4241-9905-b3c5a9c49742.jpg', 'image/jpeg', '72751', '2024-11-07 17:45:17', 'Published'),
-(39, 6, '568a946d-7ca1-4ad5-836c-f0e01c3f9003.jpg', 'image/jpeg', '53224', '2024-11-07 17:45:17', 'Published');
+(39, 6, '568a946d-7ca1-4ad5-836c-f0e01c3f9003.jpg', 'image/jpeg', '53224', '2024-11-07 17:45:17', 'Published'),
+(40, 8, 'e08330fc-6d07-4127-920e-d564029d7531.jpg', 'image/jpeg', '26931', '2024-11-11 21:05:46', 'Published'),
+(41, 8, '009cbd4a-b055-4bb2-932e-a329f88dac2c.jpg', 'image/jpeg', '47875', '2024-11-11 21:05:46', 'Published'),
+(42, 8, '87e96a2a-d5b9-4883-97a4-68406376a39e.jpg', 'image/jpeg', '1108350', '2024-11-11 21:05:46', 'Published'),
+(43, 9, '49b50752-0f61-40e4-b88c-2a535357f256.jpg', 'image/jpeg', '248706', '2024-11-11 21:08:32', 'Published'),
+(44, 9, '1437bd73-1468-42ee-b584-63c8a7f8a02b.jpg', 'image/jpeg', '26931', '2024-11-11 21:08:32', 'Published'),
+(45, 9, '5977fe74-dd78-4c5d-9e28-476e8d808c67.jpg', 'image/jpeg', '47875', '2024-11-11 21:08:32', 'Published');
 
 -- --------------------------------------------------------
 
@@ -308,7 +364,9 @@ INSERT INTO `subscriptions` (`subscription_id`, `subscription_plan_id`, `subscri
 (22, 3, 6, 11, '2024-11-07 00:07:23', '2024-11-06 23:12:31', 'T292446195337665'),
 (23, 3, 6, 11, '2024-11-07 00:08:50', '2024-11-26 23:15:30', 'T110506023180976'),
 (24, 1, 6, 13, '2024-11-07 17:36:33', '2024-11-07 16:41:33', 'T506873135814929'),
-(25, 1, 6, 13, '2024-11-07 17:44:33', '2024-11-07 16:49:33', 'T137538683950478');
+(25, 1, 6, 13, '2024-11-07 17:44:33', '2024-11-07 16:49:33', 'T137538683950478'),
+(26, 4, 6, 23, '2024-11-11 21:03:35', '2024-11-18 20:03:35', 'T095220003469342'),
+(27, 4, 10, 23, '2024-11-21 14:03:59', '2024-11-28 13:03:59', 'T958605653627148');
 
 -- --------------------------------------------------------
 
@@ -337,7 +395,8 @@ CREATE TABLE `subscription_plans` (
 INSERT INTO `subscription_plans` (`subscription_plan_id`, `subscription_plan_title`, `subscription_plan_slug`, `duration`, `no_of_services`, `no_of_images_per_service`, `is_featured`, `price`, `service_charge`, `subscription_plan_status`, `subscription_plan_created_at`) VALUES
 (1, 'Gold Plan', 'gold_plan', 300, 5, 12, 'Yes', 13, 13, 'Active', '2024-10-27 21:03:22'),
 (2, 'Starter Package', 'starter_package', 120, 3, 2, 'No', 5, 0, 'Active', '2024-10-27 21:04:06'),
-(3, 'Platinum Plan', 'platinum_plan', 180, 6, 6, 'Yes', 11, 11, 'Active', '2024-10-27 21:17:47');
+(3, 'Platinum Plan', 'platinum_plan', 180, 6, 6, 'Yes', 11, 11, 'Active', '2024-10-27 21:17:47'),
+(4, 'Silver Plan', 'silver_plan', 604800, 5, 10, 'Yes', 23, 4.5, 'Active', '2024-11-11 21:00:48');
 
 -- --------------------------------------------------------
 
@@ -399,9 +458,20 @@ INSERT INTO `users` (`user_id`, `user_full_name`, `user_email`, `user_phone`, `u
 (2, 'John Stones', 'stones@gmail.com', '+1(823)890980', 'servehub2024', 'U2FsdGVkX1+zN2Unheln9pK/sbSreYbdeaNFbmqCJL4=', 'Admin', NULL, 'a00eec0a-0e91-4019-8bad-4e0a43e79830.png', NULL, NULL, NULL, NULL, NULL, NULL, '2024-10-06 07:16:47', 'Active'),
 (3, 'Sam Elrond', 'elrond@gmail.com', '09089098909', 'servehub2024', 'U2FsdGVkX1+4RmnpsLTEzYRQKfRpP1isnwgkYIQbZW8=', 'Service Provider', '3e346385-f70f-4c27-aeee-41cd09f63900.png', 'a17e8630-5c77-4f70-9f1a-1f54fd23e897.jpg', 'facebook.com/elrond', 'instagram.com/elrond', 'x.com/elrond', 'whatsapp.com/elrond', 'youtube.com/elrond', 'linkedin.com/elrond', '2024-10-06 07:18:58', 'Active'),
 (4, 'Samuel Onuoha', 'sammy@gmail.com', '09089098787', 'servehub2024', 'U2FsdGVkX1+F4L6+RFZ1WhWsIQm3eFNuG48t+U1GNaM=', 'Service Provider', '562f2939-216a-49a2-8ec0-598a9b892de0.jpg', 'b9c91bd4-65b7-4a3c-97cd-6cfc9fa4ee4d.png', NULL, NULL, NULL, NULL, NULL, NULL, '2024-10-07 20:50:45', 'Active'),
-(5, 'Clemanze', 'onyenze@gmail.com', '08012890911', 'servehub2024', 'U2FsdGVkX18aFH1TkH42g1LnPxcCXdJehd5vk1LkLRo=', 'Customer', '381bfb58-b588-4621-addf-663489611816.jpeg', 'c24cb1f2-26b6-4a52-be34-cd9b41580f15.png', NULL, NULL, NULL, NULL, NULL, NULL, '2024-10-12 03:10:16', 'Active'),
+(5, 'Clemanze', 'onyenze@gmail.com', '08012890911', 'servehub2024', 'U2FsdGVkX18aFH1TkH42g1LnPxcCXdJehd5vk1LkLRo=', 'Service Provider', 'a5346a9f-118e-4d40-8166-647dc0b12f7d.png', 'c24cb1f2-26b6-4a52-be34-cd9b41580f15.png', NULL, NULL, NULL, NULL, NULL, NULL, '2024-10-12 03:10:16', 'Active'),
 (6, 'Joe Okoye', 'okoye@gmail.com', '0900980989', 'servehub2024', 'U2FsdGVkX18I+mu0c5awI5rldc1Aw6oiynufbGaf0l8=', 'Service Provider', NULL, '62eedbff-5715-4ea7-8cd4-d025b916e965.png', NULL, NULL, NULL, NULL, NULL, NULL, '2024-10-21 12:35:55', 'Active'),
-(8, 'Rise Washers', 'rise@gmail.com', '08076545676', 'servehub2024', 'U2FsdGVkX191Dzk1sg5722saWtacGbqI5ziYSkaEPsg=', 'Service Provider', 'e04fab19-564b-4878-9919-55b0145e24cd.jpg', '755dd857-5d9f-4b39-9a44-6c80034f91af.png', NULL, NULL, NULL, NULL, NULL, NULL, '2024-10-26 19:27:08', 'Active');
+(8, 'Rise Washers', 'rise@gmail.com', '08076545676', 'servehub2024', 'U2FsdGVkX191Dzk1sg5722saWtacGbqI5ziYSkaEPsg=', 'Service Provider', 'e04fab19-564b-4878-9919-55b0145e24cd.jpg', '755dd857-5d9f-4b39-9a44-6c80034f91af.png', NULL, NULL, NULL, NULL, NULL, NULL, '2024-10-26 19:27:08', 'Active'),
+(9, 'Lemach Jones', 'jones@gmail.com', '+1 923 1910 10', 'servehub2024', 'U2FsdGVkX19HpplhLLMff7GLfsvCuH/sdFe/pvMdGm0=', 'Service Provider', '6c6b932b-a801-471f-a116-e9be8eb00627.png', 'f87bb3be-d8d8-46ce-8dc9-03c80105b34f.png', 'https://facebook.com/lemachjones', 'https://instagram.com/lemachjones', 'https://x.com/lemachjones', 'https://whatsapp.com/lemachjones', 'https://youtube.com/lemachjones', 'https://linkedin.com/lemachjones', '2024-11-21 10:31:35', 'Active'),
+(10, 'Jeremiah Giang', 'jerremy@gmail.com', '+1 9871 8192 18', 'servehub2024', 'U2FsdGVkX1+s3dCYMNSa/d50bDsDwEjA/eNDCXWp0Vc=', 'Service Provider', '2a0f39a4-a783-4267-8f68-5ffcef33b47d.png', 'f069fc45-88a9-479d-9ed3-ddb499c735e0.jpg', 'https:facebook.com/jerremy', 'https:instagram.com/jerremy', 'https:x.com/jerremy', 'https:whatsapp.com/jerremy', NULL, NULL, '2024-11-21 14:02:31', 'Active');
+
+-- --------------------------------------------------------
+
+--
+-- Structure for view `reviews_view`
+--
+DROP TABLE IF EXISTS `reviews_view`;
+
+CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `reviews_view`  AS SELECT `a`.`review_id` AS `review_id`, `a`.`service_id` AS `service_id`, `a`.`reviewer_id` AS `reviewer_id`, `a`.`review_title` AS `review_title`, `a`.`review` AS `review`, `a`.`rating` AS `rating`, `a`.`reviewed_at` AS `reviewed_at`, `a`.`review_status` AS `review_status`, `b`.`service_title` AS `service_title`, `c`.`user_full_name` AS `user_full_name`, `c`.`user_avatar_filename` AS `user_avatar_filename` FROM ((`reviews` `a` left join `services` `b` on(`a`.`service_id` = `b`.`service_id`)) left join `users` `c` on(`a`.`reviewer_id` = `c`.`user_id`)) ;
 
 -- --------------------------------------------------------
 
@@ -438,7 +508,8 @@ CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW 
 -- Indexes for table `messages`
 --
 ALTER TABLE `messages`
-  ADD PRIMARY KEY (`message_id`);
+  ADD PRIMARY KEY (`message_id`),
+  ADD KEY `provider_id` (`provider_id`);
 
 --
 -- Indexes for table `reviews`
@@ -518,31 +589,31 @@ ALTER TABLE `users`
 -- AUTO_INCREMENT for table `messages`
 --
 ALTER TABLE `messages`
-  MODIFY `message_id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `message_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
 -- AUTO_INCREMENT for table `reviews`
 --
 ALTER TABLE `reviews`
-  MODIFY `review_id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `review_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
 
 --
 -- AUTO_INCREMENT for table `services`
 --
 ALTER TABLE `services`
-  MODIFY `service_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
+  MODIFY `service_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
 
 --
 -- AUTO_INCREMENT for table `service_bookings`
 --
 ALTER TABLE `service_bookings`
-  MODIFY `service_booking_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `service_booking_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
 -- AUTO_INCREMENT for table `service_categories`
 --
 ALTER TABLE `service_categories`
-  MODIFY `service_category_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+  MODIFY `service_category_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
 
 --
 -- AUTO_INCREMENT for table `service_enquiries`
@@ -560,25 +631,25 @@ ALTER TABLE `service_faq`
 -- AUTO_INCREMENT for table `service_images`
 --
 ALTER TABLE `service_images`
-  MODIFY `service_image_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=40;
+  MODIFY `service_image_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=46;
 
 --
 -- AUTO_INCREMENT for table `subscriptions`
 --
 ALTER TABLE `subscriptions`
-  MODIFY `subscription_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=26;
+  MODIFY `subscription_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=28;
 
 --
 -- AUTO_INCREMENT for table `subscription_plans`
 --
 ALTER TABLE `subscription_plans`
-  MODIFY `subscription_plan_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `subscription_plan_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
 -- AUTO_INCREMENT for table `users`
 --
 ALTER TABLE `users`
-  MODIFY `user_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
+  MODIFY `user_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
 
 --
 -- Constraints for dumped tables

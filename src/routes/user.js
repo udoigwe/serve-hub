@@ -22,5 +22,11 @@ router.delete(
 	validators.deleteUser,
 	userController.deleteUser
 );
+router.post(
+	"/providers",
+	checkAuth.verifyToken,
+	validators.becomeAProvider,
+	userController.becomeAProvider
+);
 
 module.exports = router;
