@@ -179,8 +179,8 @@ $(function () {
 				var form = $("#service-booking-form");
 				var startDate = form.find(".start_date").val();
 				var startTime = form.find(".start_time").val();
-				var endDate = form.find(".end_date").val();
-				var endTime = form.find(".end_time").val();
+				/* var endDate = form.find(".end_date").val();
+				var endTime = form.find(".end_time").val(); */
 				var service_price = parseFloat(
 					form.find(".service_price").val()
 				);
@@ -199,7 +199,10 @@ $(function () {
 				}
 
 				const serviceStartTime = moment(`${startDate} ${startTime}:00`);
-				const serviceEndTime = moment(`${endDate} ${endTime}:00`);
+				const serviceEndTime = moment(
+					`${startDate} ${startTime}:00`
+				).add(1, "hours");
+				/* const serviceEndTime = moment(`${endDate} ${endTime}:00`); */
 
 				if (serviceEndTime.isBefore(serviceStartTime)) {
 					unblockUI();
