@@ -175,6 +175,9 @@ $(function () {
 				$(".dashboard-link").remove();
 			}
 
+			$(".logged-user").text(
+				`, ${payloadClaim(token, "user_full_name")}`
+			);
 			$(".signed-out-links").css("display", "inline-block");
 			$(".signed-in-links").css("display", "none");
 		} else {

@@ -1,5 +1,6 @@
 const pool = require("../utils/dbConfig");
 const moment = require("moment");
+const { sumArray } = require("../utils/functions");
 
 module.exports = {
 	home: async (req, res, next) => {
@@ -349,8 +350,188 @@ module.exports = {
 	adminSignIn: async (req, res) => {
 		res.render("admin/sign-in", { title: "Serve Hub - Sign In" });
 	},
-	adminDashboard: async (req, res) => {
-		res.render("admin/dashboard", { title: "Serve Hub - Dashboard" });
+	adminDashboard: async (req, res, next) => {
+		const year = moment().format("YYYY");
+		const months = [
+			"01",
+			"02",
+			"03",
+			"04",
+			"05",
+			"06",
+			"07",
+			"08",
+			"09",
+			"10",
+			"11",
+			"12",
+		];
+		const monthLabelsArray = [];
+		const amountPaidArray = [];
+		const expectedPayoutArray = [];
+		const serviceChargeArray = [];
+		const subscriptionArray = [];
+
+		let dashboard;
+		let connection;
+
+		//messages count
+		let query = `
+			SELECT COUNT(*) AS message_count
+			FROM messages
+			WHERE provider_id = NULL
+		`;
+
+		let query2 = `
+			SELECT COUNT(*) AS review_count
+			FROM reviews
+			WHERE review_status = 'Published'
+		`;
+
+		let query3 = `
+			SELECT COUNT(*) AS service_count
+			FROM services
+			WHERE service_status = 'Published'
+		`;
+
+		let query4 = `
+			SELECT COUNT(*) AS service_booking_count
+			FROM service_bookings
+		`;
+
+		let query5 = `
+			SELECT COUNT(*) AS service_category_count
+			FROM service_categories
+			WHERE service_category_status = 'Active'
+		`;
+
+		let query6 = `
+			SELECT COUNT(*) AS subscription_count
+			FROM subscriptions
+		`;
+
+		let query7 = `
+			SELECT COUNT(*) AS subscription_plan_count
+			FROM subscription_plans
+			WHERE subscription_plan_status = 'Active'
+		`;
+
+		let query8 = `
+			SELECT COUNT(*) AS admin_count
+			FROM users
+			WHERE user_category = 'Admin'
+			AND user_status = 'Active'
+		`;
+
+		let query9 = `
+			SELECT COUNT(*) AS service_provider_count
+			FROM users
+			WHERE user_category = 'Service Provider'
+			AND user_status = 'Active'
+		`;
+
+		let query10 = `
+			SELECT COUNT(*) AS customer_count
+			FROM users
+			WHERE user_category = 'Customer'
+			AND user_status = 'Active'
+		`;
+
+		try {
+			// Get a connection from the pool
+			connection = await pool.getConnection();
+
+			const [messages] = await connection.execute(query);
+			const [reviews] = await connection.execute(query2);
+			const [services] = await connection.execute(query3);
+			const [bookings] = await connection.execute(query4);
+			const [categories] = await connection.execute(query5);
+			const [subscriptions] = await connection.execute(query6);
+			const [plans] = await connection.execute(query7);
+			const [admins] = await connection.execute(query8);
+			const [providers] = await connection.execute(query9);
+			const [customers] = await connection.execute(query10);
+
+			//generate my monthly income chart
+			for (var i = 0; i < months.length; i++) {
+				const month = months[i];
+
+				const period = `${year}-${month}`;
+
+				//get total of amount paid for this period
+				let [amountPaid] = await connection.execute(`
+						SELECT COALESCE(SUM(amount_paid), 0) AS total_amount_paid_this_month FROM service_bookings WHERE DATE_FORMAT(booked_at, '%Y-%m') = '${period}'
+					`);
+
+				//get total of payouts for this period
+				let [payouts] = await connection.execute(`
+						SELECT COALESCE(SUM(expected_payout), 0) AS total_expected_payout_this_month FROM service_bookings WHERE DATE_FORMAT(booked_at, '%Y-%m') = '${period}' AND payout_status = 'Paid Out'
+					`);
+
+				//get total of service charges for this period
+				let [serviceCharges] = await connection.execute(`
+						SELECT COALESCE(SUM(amount_paid - expected_payout), 0) AS total_service_charge_this_month FROM service_bookings WHERE DATE_FORMAT(booked_at, '%Y-%m') = '${period}' AND payout_status = 'Paid Out'
+					`);
+
+				//get total of subscriptions for this period
+				let [subscriptionAmount] = await connection.execute(`
+						SELECT COALESCE(SUM(subscription_amount), 0) AS total_subscription_amount_this_month FROM subscriptions WHERE DATE_FORMAT(subscribed_at, '%Y-%m') = '${period}'
+					`);
+
+				//push to arrays
+				monthLabelsArray.push(moment(period).format("MMM"));
+				amountPaidArray.push(
+					amountPaid[0].total_amount_paid_this_month
+				);
+				expectedPayoutArray.push(
+					payouts[0].total_expected_payout_this_month
+				);
+				serviceChargeArray.push(
+					serviceCharges[0].total_service_charge_this_month
+				);
+				subscriptionArray.push(
+					subscriptionAmount[0].total_subscription_amount_this_month
+				);
+			}
+
+			//generate monthly revenue chart
+			const chartData = {
+				labels: monthLabelsArray,
+				datasets: {
+					amountPaidArray,
+					expectedPayoutArray,
+					serviceChargeArray,
+					subscriptionArray,
+					total_income: sumArray([
+						...serviceChargeArray,
+						...subscriptionArray,
+					]),
+				},
+			};
+
+			dashboard = {
+				message_count: messages[0].message_count,
+				review_count: reviews[0].review_count,
+				service_count: services[0].service_count,
+				service_booking_count: bookings[0].service_booking_count,
+				service_category_count: categories[0].service_category_count,
+				subscription_count: subscriptions[0].subscription_count,
+				subscription_plan_count: plans[0].subscription_plan_count,
+				admin_count: admins[0].admin_count,
+				service_provider_count: providers[0].service_provider_count,
+				customer_count: customers[0].customer_count,
+				chart_data: chartData,
+			};
+
+			res.render("admin/dashboard", {
+				title: "Serve Hub - Dashboard",
+				dashboard,
+			});
+		} catch (e) {
+			next(e);
+		} finally {
+			connection ? connection.release() : null;
+		}
 	},
 	adminUserManagement: async (req, res) => {
 		res.render("admin/users", { title: "Serve Hub - User Management" });
