@@ -245,6 +245,43 @@
             </div>
         </div>
 
+        <div class="modal fade" id="schedule-manager" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header d-flex align-items-center justify-content-between">
+                        <h5>Schedule Management</h5>
+                        <a href="javascript:void(0);" data-bs-dismiss="modal" aria-label="Close"><i
+                                class="ti ti-circle-x-filled fs-20"></i></a>
+                    </div>
+                    <form id="new-schedule-form">
+                        <div class="modal-body">
+                            <div class="mb-3">
+                                <label class="form-label">Start Date</label>
+                                <input type="date" class="form-control start_date required" name="start_date" placeholder="Start date of schedule">
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Start Time</label>
+                                <input type="time" class="form-control start_time required" name="start_time" placeholder="Start time of schedule">
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">End Date</label>
+                                <input type="date" class="form-control end_date required" name="end_date" placeholder="End date of schedule">
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">End Time</label>
+                                <input type="time" class="form-control end_time required" name="end_time" placeholder="End time of schedule">
+                            </div>
+                            <input type="hidden" class="required service_id" name="service_id" />
+                        </div>
+                        <div class="modal-footer d-flex align-items-center justify-content-end">
+                            <a href="javascript:void(0);" class="btn btn-light me-2">Cancel</a>
+                            <button type="submit" class="btn btn-primary">Submit</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
     </div>
 
 

@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <%- include('./partials/head') %>
+</head>
+
+<body onload="notLoggedInCheck(); activateLinks(); notifications();">
+
+    <%- include('./partials/loader') %>
+
+        <%- include('./partials/topbar') %>
+
+            <!--  BEGIN NAVBAR  -->
+            <div class="sub-header-container">
+                <header class="header navbar navbar-expand-sm">
+                    <a href="javascript:void(0);" class="sidebarCollapse" data-placement="bottom"><svg
+                            xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                            class="feather feather-menu">
+                            <line x1="3" y1="12" x2="21" y2="12"></line>
+                            <line x1="3" y1="6" x2="21" y2="6"></line>
+                            <line x1="3" y1="18" x2="21" y2="18"></line>
+                        </svg></a>
+
+                    <ul class="navbar-nav flex-row">
+                        <li>
+                            <div class="page-header">
+
+                                <nav class="breadcrumb-one" aria-label="breadcrumb">
+                                    <ol class="breadcrumb">
+                                        <li class="breadcrumb-item"><a href="dashboard">Home</a></li>
+                                        <li class="breadcrumb-item"><a href="#">Service Management</a></li>
+                                        <li class="breadcrumb-item active" aria-current="page"><span>Bookings</span></li>
+                                    </ol>
+                                </nav>
+
+                            </div>
+                        </li>
+                    </ul>
+                </header>
+            </div>
+            <!--  END NAVBAR  -->
+
+            <!--  BEGIN MAIN CONTAINER  -->
+            <div class="main-container" id="container">
+
+                <div class="overlay"></div>
+                <div class="search-overlay"></div>
+
+                <%- include('./partials/sidebar') %>
+
+                    <!--  BEGIN CONTENT AREA  -->
+                    <div id="content" class="main-content">
+                        <div class="layout-px-spacing">
+
+                           <div class="row layout-top-spacing super-admin">
+
+                                <div class="col-xl-12 col-lg-12 col-sm-12  layout-spacing">
+                                    <div class="statbox widget box box-shadow">
+                                        <div class="widget-header">
+                                            <div class="row">
+                                                <div class="col-xl-12 col-md-12 col-sm-12 col-12">
+                                                    <h4>Bookings</h4>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="widget-content widget-content-area br-6">
+                                        <div class="table-responsive mb-4 mt-4">
+                                            <table id="existing-bookings" class="table table-hover" style="width:100%">
+                                                <thead>
+                                                    <tr>
+                                                        <th>#</th>
+                                                        <th>Service</th>
+                                                        <th>Client Full Name</th>
+                                                        <th>Client Email</th>
+                                                        <th>Client Phone</th>
+                                                        <th>Client Address</th>
+                                                        <th>Amount Paid</th>
+                                                        <th>Expected Payout</th>
+                                                        <th>Service Charge</th>
+                                                        <th>Service Price</th>
+                                                        <th>Service Category</th>
+                                                        <th>Service Provider</th>
+                                                        <th>Transaction ID</th>
+                                                        <th>Booked At</th>
+                                                        <th>Booking Status</th>
+                                                        <th>Payout Status</th>
+                                                        <th>Actions</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody></tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- edit Modal -->
+                            <div class="modal animated zoomInUp custo-zoomInUp" id="editModal" tabindex="-1"
+                                role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+                                <div class="modal-dialog modal-dialog-centered modal-xl" role="document">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h5 class="modal-title" id="exampleModalCenterTitle">Update Booking Statuses</h5>
+                                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                                <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24"
+                                                    height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                                    stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                                                    class="feather feather-x">
+                                                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                                                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                                                </svg>
+                                            </button>
+                                        </div>
+                                        <div class="modal-body">
+                                            <form class="form-vertical" id="updateBookingStatus">
+                                                <div class="form-row mb-4">
+                                                    <div class="form-group col-md-6">
+                                                        <label for="booking_status">Booking Status
+                                                            <span class="red-asteriks">*</span></label>
+                                                        <select
+                                                            class="selectpicker form-control booking_status required"
+                                                            name="booking_status">
+                                                            <option value="">Please select</option>
+                                                            <option value="Booked">Booked</option>
+                                                            <option value="Provider Accepted">Provider Accepted</option>
+                                                            <option value="Provider Rejected">Provider Rejected</option>
+                                                            <option value="Canceled">Canceled</option>
+                                                            <option value="Completed">Completed</option>
+                                                        </select>
+                                                    </div>
+                                                    <div class="form-group col-md-6">
+                                                        <label for="payout_status">Payout Status
+                                                            <span class="red-asteriks">*</span></label>
+                                                        <select
+                                                            class="selectpicker form-control payout_status required"
+                                                            name="payout_status">
+                                                            <option value="">Please select</option>
+                                                            <option value="Pending Payout">Pending Payout</option>
+                                                            <option value="Scheduled For Payout">Scheduled For Payout Accepted</option>
+                                                            <option value="Paid Out">Paid Out</option>
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                                <input type="hidden" name="service_booking_id"
+                                                    class="required service_booking_id" />
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button class="btn" data-dismiss="modal"><i class="flaticon-cancel-12"></i>
+                                                Discard</button>
+                                            <button type="submit" class="btn btn-primary">Update Booking Status</button>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+                        <%- include('./partials/footer') %>
+                    </div>
+                    <!--  END CONTENT AREA  -->
+            </div>
+            <!-- END MAIN CONTAINER -->
+
+
+
+            <!-- BEGIN GLOBAL MANDATORY SCRIPTS -->
+            <%- include('./partials/scripts') %>
+                <script src="/admin-assets/assets/js/admin/bookings.js"></script>
+</body>
+
+</html>

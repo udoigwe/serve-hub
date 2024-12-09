@@ -192,6 +192,11 @@ module.exports = {
 			.exists({ checkFalsy: true })
 			.withMessage("Amount is required"),
 	],
+	getServiceBooking: [
+		param("service_booking_id")
+			.exists({ checkFalsy: true })
+			.withMessage("Service Booking ID is required"),
+	],
 	postReview: [
 		body("service_id")
 			.exists({ checkFalsy: true })
@@ -213,5 +218,56 @@ module.exports = {
 		body("booking_status")
 			.exists({ checkFalsy: true })
 			.withMessage("Booking Status is required"),
+	],
+	updateBookingStatuses: [
+		body("service_booking_id")
+			.exists({ checkFalsy: true })
+			.withMessage("Service Booking ID is required"),
+		body("booking_status")
+			.exists({ checkFalsy: true })
+			.withMessage("Booking Status is required"),
+		body("payout_status")
+			.exists({ checkFalsy: true })
+			.withMessage("Payout Status is required"),
+	],
+	newServiceSchedule: [
+		body("service_id")
+			.exists({ checkFalsy: true })
+			.withMessage("Service ID is required"),
+		body("schedule_start_time")
+			.exists({ checkFalsy: true })
+			.withMessage("Schedule start time is required"),
+		body("schedule_end_time")
+			.exists({ checkFalsy: true })
+			.withMessage("Schedule end time is required"),
+		body().custom((_, { req }) => {
+			const { schedule_start_time, schedule_end_time } = req.body;
+
+			if (new Date(schedule_start_time) > new Date(schedule_end_time)) {
+				throw `Schedule start time cannot be greater than schedule end time`;
+			}
+
+			return true;
+		}),
+	],
+	serviceAvailabilityCheck: [
+		body("service_id")
+			.exists({ checkFalsy: true })
+			.withMessage("Service ID is required"),
+		body("schedule_start_time")
+			.exists({ checkFalsy: true })
+			.withMessage("Schedule start time is required"),
+		body("schedule_end_time")
+			.exists({ checkFalsy: true })
+			.withMessage("Schedule end time is required"),
+		body().custom((_, { req }) => {
+			const { schedule_start_time, schedule_end_time } = req.body;
+
+			if (new Date(schedule_start_time) > new Date(schedule_end_time)) {
+				throw `Schedule start time cannot be greater than schedule end time`;
+			}
+
+			return true;
+		}),
 	],
 };

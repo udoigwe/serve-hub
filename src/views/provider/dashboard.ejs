@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <%- include('../partials/head') %>
+</head>
+
+<body class="provider-page">
+
+    <div class="main-wrapper">
+
+        <%- include('../partials/provider-header') %>
+        
+        
+        <%- include('../partials/provider-sidebar') %>
+
+
+        <div class="page-wrapper">
+            <div class="content">
+                <div class="d-flex align-items-center justify-content-between flex-wrap row-gap-3 mb-4">
+                    <h4>Dashboard</h4>
+                </div>
+                <div class="row">
+                    <div class="col-xl-4 col-md-6 d-flex">
+                        <div class="card w-100">
+                            <div class="card-body d-flex align-items-center justify-content-between p-3">
+                                <div class="d-flex align-items-center">
+                                    <span
+                                        class="app-icon d-flex justify-content-center align-items-center bg-light rounded-circle fs-20 me-2">
+                                        <i class="ti ti-wallet"></i>
+                                    </span>
+                                    <div>
+                                        <span class="fs-14">Total Income</span>
+                                        <h5>$ <span class="counter"><%= dashboard.total_income %></span></h5>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-xl-4 col-md-6 d-flex">
+                        <div class="card w-100">
+                            <div class="card-body d-flex align-items-center justify-content-between p-3">
+                                <div class="d-flex align-items-center">
+                                    <span
+                                        class="app-icon d-flex justify-content-center align-items-center bg-light rounded-circle fs-20 me-2">
+                                        <i class="ti ti-message"></i>
+                                    </span>
+                                    <div>
+                                        <span class="fs-14">Messages</span>
+                                        <h5><span class="counter"><%= dashboard.messages_count %></span></h5>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-xl-4 col-md-6 d-flex">
+                        <div class="card w-100">
+                            <div class="card-body d-flex align-items-center justify-content-between p-3">
+                                <div class="d-flex align-items-center">
+                                    <span
+                                        class="app-icon d-flex justify-content-center align-items-center bg-light rounded-circle fs-20 me-2">
+                                        <i class="ti ti-clock"></i>
+                                    </span>
+                                    <div>
+                                        <span class="fs-14">Total Bookings</span>
+                                        <h5><span class="counter"><%= dashboard.bookings_count %></span></h5>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-xl-4 col-md-6 d-flex">
+                        <div class="card w-100">
+                            <div class="card-body d-flex align-items-center justify-content-between p-3">
+                                <div class="d-flex align-items-center">
+                                    <span
+                                        class="app-icon d-flex justify-content-center align-items-center bg-light rounded-circle fs-20 me-2">
+                                        <i class="ti ti-tag"></i>
+                                    </span>
+                                    <div>
+                                        <span class="fs-14">Subscriptions</span>
+                                        <h5><span class="counter">
+                                                <%= dashboard.subscription_count %>
+                                            </span></h5>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-xl-4 col-md-6 d-flex">
+                        <div class="card w-100">
+                            <div class="card-body d-flex align-items-center justify-content-between p-3">
+                                <div class="d-flex align-items-center">
+                                    <span
+                                        class="app-icon d-flex justify-content-center align-items-center bg-light rounded-circle fs-20 me-2">
+                                        <i class="ti ti-servicemark"></i>
+                                    </span>
+                                    <div>
+                                        <span class="fs-14">Services</span>
+                                        <h5><span class="counter">
+                                                <%= dashboard.service_count %>
+                                            </span></h5>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                        <div class="col-xl-4 col-md-6 d-flex">
+                            <div class="card w-100">
+                                <div class="card-body d-flex align-items-center justify-content-between p-3">
+                                    <div class="d-flex align-items-center">
+                                        <span
+                                            class="app-icon d-flex justify-content-center align-items-center bg-light rounded-circle fs-20 me-2">
+                                            <i class="ti ti-tag"></i>
+                                        </span>
+                                        <div>
+                                            <span class="fs-14">Current Plan</span>
+                                            <h5><span class="counter">
+                                                    <%= dashboard.plan ? dashboard.plan.subscription_plan_title : "Not Subscribed Yet" %>
+                                                </span></h5>
+                                        </div>
+                                    </div>
+                                    <div class="d-flex align-items-end">
+                                        <a href="/provider/plans" class="btn btn-dark btn-sm"><%= dashboard.plan ? "Upgrade" : "Subscribe" %></a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    
+                </div>
+            </div>
+        </div>
+    </div>
+    <%- include('../partials/scripts') %>
+</body>
+</html>

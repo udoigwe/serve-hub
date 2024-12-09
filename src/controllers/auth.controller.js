@@ -9,8 +9,10 @@ const {
 	getNewFileName,
 	uuidv4,
 	fileExists,
+	sendMail,
 } = require("../utils/functions");
 const sharp = require("sharp");
+const { otpHTML } = require("../utils/emailTemplates");
 
 module.exports = {
 	signUp: async (req, res, next) => {
@@ -20,6 +22,8 @@ module.exports = {
 			user_phone,
 			user_password,
 			user_category,
+			student_id,
+			year_of_graduation,
 		} = req.body;
 
 		const user_fb_url = !req.body.user_fb_url ? null : req.body.user_fb_url;
@@ -47,8 +51,17 @@ module.exports = {
         `;
 		const queryParams = [user_email];
 
+		const query2 = `
+            SELECT *
+            FROM users
+            WHERE student_id = ?
+            LIMIT 1
+        `;
+		const queryParams2 = [student_id];
+
 		const uploadPath = "public/uploads/user-images/";
 		const uploadPath2 = "public/uploads/certificates/";
+		const randomNumber = Math.floor(1000 + Math.random() * 9000);
 		const encryptedPassword = CryptoJS.AES.encrypt(
 			user_password,
 			process.env.CRYPTOJS_SECRET
@@ -58,10 +71,21 @@ module.exports = {
 			// Get a connection from the pool
 			connection = await db.getConnection();
 
+			//start db transaction
+			await connection.beginTransaction();
+
 			const [users] = await connection.execute(query, queryParams);
+			const [ids] = await connection.execute(query2, queryParams2);
 
 			if (users.length > 0) {
 				throw new CustomError(400, `${user_email} already exists`);
+			}
+
+			if (ids.length > 0) {
+				throw new CustomError(
+					400,
+					`Student ID ${student_id} already exists`
+				);
 			}
 
 			//rename user avatar
@@ -111,8 +135,12 @@ module.exports = {
                     user_x_url,
                     user_whatsapp_url,
                     user_youtube_url,
-                    user_linkedin_url
-                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                    user_linkedin_url,
+					otp,
+					student_id,
+					year_of_graduation,
+					user_status
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'Inactive')
             `,
 				[
 					user_full_name,
@@ -129,14 +157,27 @@ module.exports = {
 					user_whatsapp_url,
 					user_youtube_url,
 					user_linkedin_url,
+					randomNumber,
+					student_id,
+					year_of_graduation,
 				]
 			);
 
+			//generate html email template
+			const emailTemplate = otpHTML(user_email, randomNumber.toString());
+
+			//send otp
+			await sendMail(user_email, "Email Verification", emailTemplate);
+
+			//start db commit
+			await connection.commit();
+
 			res.json({
 				error: false,
-				message: "Sign Up successfully done",
+				message: `A verification email with an OTP has been sent to ${user_email}`,
 			});
 		} catch (e) {
+			connection ? connection.rollback() : null;
 			next(e);
 		} finally {
 			connection ? connection.release() : null;
@@ -411,6 +452,116 @@ module.exports = {
 			res.json({
 				error: false,
 				message: "Password updated successfully",
+			});
+		} catch (e) {
+			next(e);
+		} finally {
+			connection ? connection.release() : null;
+		}
+	},
+	resendOTP: async (req, res, next) => {
+		const { email } = req.body;
+
+		const randomNumber = Math.floor(1000 + Math.random() * 9000);
+		let connection;
+
+		try {
+			//instantiate db
+			connection = await db.getConnection();
+
+			//start db transaction
+			await connection.beginTransaction();
+
+			//check if email exists
+			const [users] = await connection.execute(
+				`
+                SELECT *
+                FROM users
+                WHERE user_email = ?
+                LIMIT 1`,
+				[email]
+			);
+
+			if (users.length === 0) {
+				throw new CustomError(400, "User does not exist.");
+			}
+
+			//update otp into database
+			await connection.execute(
+				`
+                UPDATE users
+                SET
+                    otp = ?
+                WHERE user_email = ?`,
+				[randomNumber, email]
+			);
+
+			//generate html email template
+			const emailTemplate = otpHTML(email, randomNumber.toString());
+
+			//send email
+			//await sendMail(process.env.AWS_SES_NO_REPLY_SENDER, [ email ], 'Email Verification', emailTemplate);
+			await sendMail(email, "Email Verification", emailTemplate);
+
+			//commit db
+			await connection.commit();
+
+			res.json({
+				error: false,
+				message: `OTP has been resent to ${email}`,
+			});
+		} catch (e) {
+			connection ? connection.rollback() : null;
+			next(e);
+		} finally {
+			connection ? connection.release() : null;
+		}
+	},
+	verifyAccount: async (req, res, next) => {
+		const { email, otp } = req.body;
+
+		let connection;
+
+		try {
+			//instantiate db
+			connection = await db.getConnection();
+
+			//check if email exists
+			const [users] = await connection.execute(
+				`
+                SELECT *
+                FROM users
+                WHERE user_email = ?
+                LIMIT 1`,
+				[email]
+			);
+
+			if (users.length === 0) {
+				throw new CustomError(400, "User does not exist.");
+			}
+
+			//check if otp provided matches stored otp
+			if (users[0].otp !== otp) {
+				throw new CustomError(
+					400,
+					"Invalid OTP provided. Please try again"
+				);
+			}
+
+			//activate and verify user
+			await connection.execute(
+				`
+                UPDATE users
+                SET
+                    user_status = 'Active',
+                    otp = NULL
+                WHERE user_email = ?`,
+				[email]
+			);
+
+			res.json({
+				error: false,
+				message: "Account verified successfully",
 			});
 		} catch (e) {
 			next(e);

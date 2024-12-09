@@ -72,6 +72,16 @@ router.get(
 	checkAuth.verifyToken,
 	serviceController.getServiceBookings
 );
+router.get(
+	"/bookings/:service_booking_id",
+	checkAuth.verifyToken,
+	serviceController.getServiceBooking
+);
+router.get(
+	"/bookings/datatable/fetch",
+	checkAuth.isAdminCheck,
+	serviceController.getBookingsForDataTable
+);
 router.post(
 	"/reviews",
 	checkAuth.verifyToken,
@@ -83,6 +93,23 @@ router.post(
 	checkAuth.verifyToken,
 	validators.updateBookingStatus,
 	serviceController.updateBookingStatus
+);
+router.post(
+	"/booking-statuses",
+	checkAuth.verifyToken,
+	validators.updateBookingStatuses,
+	serviceController.updateBookingStatuses
+);
+router.post(
+	"/service-schedule",
+	checkAuth.verifyToken,
+	validators.newServiceSchedule,
+	serviceController.newServiceSchedule
+);
+router.post(
+	"/service-availability-check",
+	validators.serviceAvailabilityCheck,
+	serviceController.serviceAvailabilityCheck
 );
 
 module.exports = router;

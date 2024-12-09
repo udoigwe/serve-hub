@@ -1269,7 +1269,7 @@ function checkAll(elementID, tableID) {
 	});
 }
 
-const formatter = new Intl.NumberFormat("en-NG", {
+const formatter = new Intl.NumberFormat("en-US", {
 	style: "currency",
-	currency: "NGN",
+	currency: "USD",
 });

@@ -327,6 +327,19 @@
                                 </div>
                             </div>
                         </div>
+                        <% if (service.schedules.length > 0) { %>
+                            <div class="card border-0">
+                                <div class="card-body">
+                                    <h4 class="mb-3">Our Busy Schedules</h4>
+                                    <% for (let i=0; i < service.schedules.length; i++) { %>
+                                        <div class="d-flex align-items-center justify-content-between mb-3">
+                                            <!-- <h6 class="fs-16 fw-medium mb-0">Monday</h6> -->
+                                            <p><%= moment(service.schedules[i].schedule_start_time).format("Do MMM, YYYY hh:mm:ss A") %> - <%= moment(service.schedules[i].schedule_end_time).format("Do MMM, YYYY hh:mm:ss A") %></p>
+                                        </div>
+                                    <% } %>
+                                </div>
+                            </div>
+                        <% } %>
                         <!-- <div class="card border-0">
                             <div class="card-body">
                                 <h4 class="mb-3">Location</h4>

@@ -12,6 +12,9 @@ module.exports = {
 	signIn: validate(authValidations.signIn),
 	updateAccount: validate(authValidations.updateAccount),
 	passwordUpdate: validate(authValidations.updatePassword),
+	accountVerification: validate(authValidations.accountVerification),
+	resendOTP: validate(authValidations.resendOTP),
+	verifyAccount: validate(authValidations.verifyAccount),
 
 	/* User route validators */
 	getUser: validate(userValidations.getUser),
@@ -29,8 +32,14 @@ module.exports = {
 	getService: validate(serviceValidations.getService),
 	deleteService: validate(serviceValidations.deleteService),
 	serviceBooking: validate(serviceValidations.serviceBooking),
+	getServiceBooking: validate(serviceValidations.getServiceBooking),
 	postReview: validate(serviceValidations.postReview),
 	updateBookingStatus: validate(serviceValidations.updateBookingStatus),
+	updateBookingStatuses: validate(serviceValidations.updateBookingStatuses),
+	newServiceSchedule: validate(serviceValidations.newServiceSchedule),
+	serviceAvailabilityCheck: validate(
+		serviceValidations.serviceAvailabilityCheck
+	),
 
 	/* Pricing route validators */
 	createPricingPlan: validate(pricingValidations.createPricingPlan),

@@ -9,6 +9,7 @@ $(function () {
 		updateService();
 		loadServices();
 		deleteService();
+		newServiceSchedule();
 
 		$(".services").on("click", ".update-btn", function () {
 			var serviceID = $(this).attr("service-id");
@@ -67,6 +68,12 @@ $(function () {
 					alert(req.responseJSON.message);
 				},
 			});
+		});
+
+		$("body").on("click", ".schedule-btn", function () {
+			var serviceID = $(this).attr("service-id");
+			var newScheduleFOrm = $("#new-schedule-form");
+			newScheduleFOrm.find(".service_id").val(serviceID);
 		});
 	});
 
@@ -135,6 +142,9 @@ $(function () {
                                             <a href="javascript:void(0);" class="delete-btn" service-id="${
 												service.service_id
 											}><i class="ti ti-info-circle me-2"></i>Delete</a>
+											<a href="javascript:void(0);" data-bs-toggle="modal" data-bs-target="#schedule-manager" class="schedule-btn" service-id="${
+												service.service_id
+											}"><i class="ti ti-clock me-2"></i>Manage Schedule</a>
                                         </div>
                                     </div>
                                 </div>
@@ -308,6 +318,80 @@ $(function () {
 						alert(req.responseJSON.message);
 					},
 				});
+			}
+		});
+	}
+
+	//new service schedule
+	function newServiceSchedule() {
+		$("#new-schedule-form").on("submit", function (e) {
+			e.preventDefault();
+
+			if (confirm("Are you sure you want to create this schedule?")) {
+				var form = $(this);
+				var startDate = form.find(".start_date").val();
+				var startTime = form.find(".start_time").val();
+				var endDate = form.find(".end_date").val();
+				var endTime = form.find(".end_time").val();
+				var service_id = form.find(".service_id").val();
+
+				var fields = form.find(
+					"input.required, select.required, textarea.required"
+				);
+
+				blockUI();
+
+				for (var i = 0; i < fields.length; i++) {
+					if (fields[i].value == "") {
+						/*alert(fields[i].id)*/
+						unblockUI();
+						//form.find("#" + fields[i].id).focus();
+						alert(`${fields[i].name} is required`);
+						return false;
+					}
+				}
+
+				const schedule_start_time = moment(
+					`${startDate} ${startTime}:00`
+				);
+				const schedule_end_time = moment(`${endDate} ${endTime}:00`);
+
+				if (schedule_end_time.isBefore(schedule_start_time)) {
+					unblockUI();
+					alert(
+						`Schedule end time cannot be before schedule start time`
+					);
+					return false;
+				}
+
+				const data = {
+					schedule_start_time,
+					schedule_end_time,
+					service_id,
+				};
+
+				$.ajax({
+					type: "POST",
+					url: `${API_URL_ROOT}/service-schedule`,
+					data: JSON.stringify(data),
+					dataType: "json",
+					contentType: "application/json",
+					headers: { "x-access-token": token },
+					success: function (response) {
+						unblockUI();
+						alert(response.message);
+						form.get(0).reset();
+						$("#schedule-manager")
+							.find(".ti-circle-x-filled")
+							.click();
+					},
+					error: function (req, status, err) {
+						alert(req.responseJSON.message);
+						unblockUI();
+					},
+				});
+			} else {
+				alert("Operation cancelled");
 			}
 		});
 	}

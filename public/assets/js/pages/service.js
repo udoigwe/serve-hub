@@ -288,6 +288,7 @@ $(function () {
 					form.find(".service_price").val()
 				);
 				var client_email = form.find(".client_email").val();
+				var service_id = form.find(".service_id").val();
 
 				var fields = form.find(
 					"input.required, select.required, textarea.required"
@@ -321,8 +322,27 @@ $(function () {
 
 				const amountPaid = service_price * hoursDifference;
 
-				payWithPayStack(amountPaid, client_email);
-				unblockUI();
+				const availabilityCheckData = {
+					schedule_start_time: serviceStartTime,
+					schedule_end_time: serviceEndTime,
+					service_id,
+				};
+
+				$.ajax({
+					type: "POST",
+					url: `${API_URL_ROOT}/service-availability-check`,
+					data: JSON.stringify(availabilityCheckData),
+					contentType: "application/json", // Set the Content-Type to JSON
+					dataType: "json",
+					success: function (response) {
+						payWithPayStack(amountPaid, client_email);
+						unblockUI();
+					},
+					error: function (req, status, err) {
+						alert(req.responseJSON.message);
+						unblockUI();
+					},
+				});
 			} else {
 				alert("Operation abortted");
 			}

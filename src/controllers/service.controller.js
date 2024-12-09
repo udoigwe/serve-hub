@@ -8,7 +8,12 @@ const {
 	fileExists,
 	getNewFileName,
 	uuidv4,
+	sendMail,
 } = require("../utils/functions");
+const {
+	serviceProviderNotificationHTML,
+	customerNotificationHTML,
+} = require("../utils/emailTemplates");
 
 module.exports = {
 	createServiceCategory: async (req, res, next) => {
@@ -351,6 +356,131 @@ module.exports = {
 
 				for (var i = 0; i < rtData.length; i++) {
 					rtData[i].DT_RowId = rtData[i].service_category_id;
+					data.push(rtData[i]);
+				}
+
+				dTData = data;
+			} else {
+				dTData = [];
+			}
+
+			var responseData = {
+				draw: draw,
+				recordsTotal: dTNumRows,
+				recordsFiltered: dNumRowsFiltered,
+				data: dTData,
+			};
+
+			res.send(responseData);
+		} catch (e) {
+			//console.log(e.message)
+			next(e);
+		} finally {
+			connection ? connection.release() : null;
+		}
+	},
+	getBookingsForDataTable: async (req, res, next) => {
+		//dataTable Server-Side parameters
+		var columns = [
+			"service_booking_id",
+			"service_id",
+			"start_time",
+			"end_time",
+			"client_fullname",
+			"client_email",
+			"client_email",
+			"client_phone",
+			"client_address",
+			"remarks",
+			"amount_paid",
+			"transaction_id",
+			"discount",
+			"expected_payout",
+			"booked_at",
+			"booking_status",
+			"payout_status",
+			"service_charge",
+			"service_title",
+			"provider",
+			"service_price",
+			"service_category",
+		];
+
+		var draw = parseInt(req.query.draw);
+		var start = parseInt(req.query.start);
+		var length = parseInt(req.query.length);
+		var orderCol = req.query.order[0].column;
+		var orderDir = req.query.order[0].dir;
+		var search = req.query.search.value;
+
+		var dTData = (dTNumRows = dNumRowsFiltered = where = "");
+		var filter = search == "" || search == null ? false : true;
+		orderCol = columns[orderCol];
+		var columnsJoined = columns.join(", ");
+
+		const { payout_status, booking_status } = req.query;
+
+		let query = "SELECT * FROM service_bookings_view WHERE 1 = 1";
+		const queryParams = [];
+
+		if (payout_status) {
+			query += " AND payout_status = ?";
+			queryParams.push(payout_status);
+		}
+
+		if (booking_status) {
+			query += " AND booking_status = ?";
+			queryParams.push(booking_status);
+		}
+
+		query += " ORDER BY service_booking_id DESC";
+
+		let connection;
+
+		try {
+			// Get a connection from the pool
+			connection = await pool.getConnection();
+
+			const [rows] = await connection.execute(query, queryParams);
+
+			dTNumRows = rows.length;
+
+			if (filter) {
+				where += "WHERE ";
+				var i = 0;
+				var len = columns.length - 1;
+
+				for (var x = 0; x < columns.length; x++) {
+					if (i == len) {
+						where += `${columns[x]} LIKE '%${search}%'`;
+					} else {
+						where += `${columns[x]} LIKE '%${search}%' OR `;
+					}
+
+					i++;
+				}
+
+				const [rows1] = await connection.execute(
+					`SELECT * FROM (${query})X ${where}`,
+					queryParams
+				);
+
+				dNumRowsFiltered = rows1.length;
+			} else {
+				dNumRowsFiltered = dTNumRows;
+			}
+
+			const [rows2] = await connection.execute(
+				`SELECT ${columns} FROM (${query})X ${where} ORDER BY ${orderCol} ${orderDir} LIMIT ${length} OFFSET ${start}`,
+				queryParams
+			);
+
+			if (rows2.length > 0) {
+				var data = [];
+				var rtData = rows2;
+
+				for (var i = 0; i < rtData.length; i++) {
+					rtData[i].DT_RowId = rtData[i].service_booking_id;
 					data.push(rtData[i]);
 				}
 
@@ -1094,6 +1224,9 @@ module.exports = {
 			// Get a connection from the pool
 			connection = await pool.getConnection();
 
+			//start db transaction
+			await connection.beginTransaction();
+
 			//check if service exists
 			const [services] = await connection.execute(query, queryParams);
 
@@ -1105,6 +1238,20 @@ module.exports = {
 			const serviceCharge =
 				parseFloat(service.service_charge) * 0.01 * parseFloat(amount);
 			const expectedPayout = parseFloat(amount) - serviceCharge;
+
+			const [providers] = await connection.execute(
+				`
+				SELECT user_email
+				FROM users
+				WHERE user_id = ?
+				LIMIT 1
+			`,
+				[service.subscriber_id]
+			);
+
+			if (providers.length === 0) {
+				throw new CustomError(404, "Service provider does not exist");
+			}
 
 			//insert booking into db
 			await connection.execute(
@@ -1139,11 +1286,41 @@ module.exports = {
 				]
 			);
 
+			//generate provider notification html email template
+			const emailTemplate = serviceProviderNotificationHTML(
+				service.provider,
+				client_fullname,
+				service_start_time
+			);
+			//generate provider notification html email template
+			const emailTemplate2 = customerNotificationHTML(
+				client_fullname,
+				service.service_title
+			);
+
+			//send email to client
+			await sendMail(
+				client_email,
+				"Service Booking Notification",
+				emailTemplate2
+			);
+
+			//send email to service provider
+			await sendMail(
+				providers[0].user_email,
+				"Service Booking Notification",
+				emailTemplate
+			);
+
+			//commit db
+			await connection.commit();
+
 			res.json({
 				error: false,
 				message: `Service has been booked successfully.`,
 			});
 		} catch (e) {
+			connection ? connection.rollback() : null;
 			next(e);
 		} finally {
 			connection ? connection.release() : null;
@@ -1253,6 +1430,39 @@ module.exports = {
 					nextPage,
 					prevPage,
 				},
+			});
+		} catch (e) {
+			next(e);
+		} finally {
+			connection ? connection.release() : null;
+		}
+	},
+	getServiceBooking: async (req, res, next) => {
+		const { service_booking_id } = req.params;
+
+		let connection;
+
+		let query = `
+            SELECT *
+            FROM service_bookings_view
+            WHERE service_booking_id = ?
+			LIMIT 1
+        `;
+		const queryParams = [service_booking_id];
+
+		try {
+			// Get a connection from the pool
+			connection = await pool.getConnection();
+
+			const [bookings] = await connection.execute(query, queryParams);
+
+			if (bookings.length === 0) {
+				throw new CustomError(404, "Service booking does not exist");
+			}
+
+			res.json({
+				error: false,
+				booking: bookings[0],
 			});
 		} catch (e) {
 			next(e);
@@ -1376,6 +1586,153 @@ module.exports = {
 			res.json({
 				error: false,
 				message: "Booking Status updated successfully",
+			});
+		} catch (e) {
+			next(e);
+		} finally {
+			connection ? connection.release() : null;
+		}
+	},
+	updateBookingStatuses: async (req, res, next) => {
+		const { service_booking_id, booking_status, payout_status } = req.body;
+
+		let connection;
+
+		let query = `
+			SELECT *
+			FROM service_bookings_view
+			WHERE service_booking_id = ?
+			LIMIT 1
+		`;
+		const queryParams = [service_booking_id];
+
+		try {
+			// Get a connection from the pool
+			connection = await pool.getConnection();
+
+			const [bookings] = await connection.execute(query, queryParams);
+
+			if (bookings.length === 0) {
+				throw new CustomError(404, "Booking does not exist");
+			}
+
+			let updateQuery = `
+				UPDATE service_bookings
+				SET
+					payout_status = ?,
+					booking_status = ?
+				WHERE service_booking_id = ?
+			`;
+
+			//update service booking status
+			await connection.execute(updateQuery, [
+				payout_status,
+				booking_status,
+				service_booking_id,
+			]);
+
+			res.json({
+				error: false,
+				message: "Booking Statuses updated successfully",
+			});
+		} catch (e) {
+			next(e);
+		} finally {
+			connection ? connection.release() : null;
+		}
+	},
+	newServiceSchedule: async (req, res, next) => {
+		const { schedule_start_time, schedule_end_time, service_id } = req.body;
+
+		let connection;
+
+		let query = `
+			SELECT COUNT(*) AS overlap_count
+			FROM service_schedule
+			WHERE 
+				schedule_start_time < ?
+			AND 
+				schedule_end_time > ?
+			AND
+				service_id = ?
+		`;
+		const queryParams = [
+			schedule_end_time,
+			schedule_start_time,
+			service_id,
+		];
+
+		try {
+			// Get a connection from the pool
+			connection = await pool.getConnection();
+
+			//check if overlap exists
+			const [overlaps] = await connection.execute(query, queryParams);
+
+			if (parseInt(overlaps[0].overlap_count) > 0) {
+				throw new CustomError(400, "Service schedule range exists");
+			}
+
+			await connection.execute(
+				`
+				INSERT INTO service_schedule
+				(
+					service_id,
+					schedule_start_time,
+					schedule_end_time
+				) VALUES (?, ?, ?)
+			`,
+				[service_id, schedule_start_time, schedule_end_time]
+			);
+
+			res.json({
+				error: false,
+				message: "Service Schedule recorded successfully",
+			});
+		} catch (e) {
+			next(e);
+		} finally {
+			connection ? connection.release() : null;
+		}
+	},
+	serviceAvailabilityCheck: async (req, res, next) => {
+		const { schedule_start_time, schedule_end_time, service_id } = req.body;
+
+		let connection;
+
+		let query = `
+			SELECT COUNT(*) AS overlap_count
+			FROM service_schedule
+			WHERE 
+				schedule_start_time < ?
+			AND 
+				schedule_end_time > ?
+			AND
+				service_id = ?
+		`;
+		const queryParams = [
+			schedule_end_time,
+			schedule_start_time,
+			service_id,
+		];
+
+		try {
+			// Get a connection from the pool
+			connection = await pool.getConnection();
+
+			//check if overlap exists
+			const [overlaps] = await connection.execute(query, queryParams);
+
+			if (parseInt(overlaps[0].overlap_count) > 0) {
+				throw new CustomError(
+					400,
+					"Sorry!!! We will not be available at the selected time. Please check our schedules for more information"
+				);
+			}
+
+			res.json({
+				error: false,
+				message: "We will be available at the selected time",
 			});
 		} catch (e) {
 			next(e);

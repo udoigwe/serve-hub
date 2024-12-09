@@ -7,6 +7,13 @@ $(function () {
 		logout();
 		recogniseMe();
 		becomeAProvider();
+
+		//resend OTP
+		resentOTP();
+		//verify Account
+		verifyAccount();
+
+		providerDashboardLinkClick();
 	});
 
 	function register() {
@@ -78,6 +85,7 @@ $(function () {
 					alert(response.message);
 					form.get(0).reset();
 					$("#register-modal").find(".ti-circle-x-filled").click();
+					window.location = `/account-verification?email=${email}`;
 				},
 				error: function (req, status, err) {
 					alert(req.responseJSON.message);
@@ -155,7 +163,7 @@ $(function () {
 
 			if (userCategory === "Service Provider") {
 				$(".dashboard-link").html(`
-					<a class="nav-link" href="/provider/services">
+					<a class="nav-link" href="/provider/dashboard?token=${token}">
 						My Dashboard
 					</a>
 				`);
@@ -238,6 +246,76 @@ $(function () {
 						unblockUI();
 					},
 				});
+			}
+		});
+	}
+
+	function resentOTP() {
+		$(".resend").on("click", function () {
+			const email = getQueryParam("email");
+			const formData = { email };
+
+			blockUI();
+
+			$.ajax({
+				type: "POST",
+				url: `${API_URL_ROOT}/resend-otp`,
+				data: JSON.stringify(formData),
+				dataType: "json",
+				contentType: "application/json",
+				success: function (response) {
+					unblockUI();
+					alert(response.message);
+				},
+				error: function (req, status, err) {
+					alert(req.responseJSON.message);
+					unblockUI();
+				},
+			});
+		});
+	}
+
+	function verifyAccount() {
+		$("#account-verification-form").on("submit", function (e) {
+			e.preventDefault();
+
+			var form = $(this);
+			var email = getQueryParam("email");
+			var digit1 = form.find("#digit-1").val();
+			var digit2 = form.find("#digit-2").val();
+			var digit3 = form.find("#digit-3").val();
+			var digit4 = form.find("#digit-4").val();
+			var otp = `${digit1}${digit2}${digit3}${digit4}`;
+			var formData = { otp, email };
+
+			blockUI();
+
+			$.ajax({
+				type: "POST",
+				url: `${API_URL_ROOT}/verify-account`,
+				data: JSON.stringify(formData),
+				dataType: "json",
+				contentType: "application/json",
+				success: function (response) {
+					unblockUI();
+					alert(response.message);
+					window.location = `/`;
+				},
+				error: function (req, status, err) {
+					alert(req.responseJSON.message);
+					form.get(0).reset();
+					unblockUI();
+				},
+			});
+		});
+	}
+
+	function providerDashboardLinkClick() {
+		const token = sessionStorage.getItem("token");
+
+		$(".provider-dashboard-link").on("click", function () {
+			if (token) {
+				window.location = `dashboard?token=${token}`;
 			}
 		});
 	}

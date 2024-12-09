@@ -1,6 +1,7 @@
 const pool = require("../utils/dbConfig");
 const moment = require("moment");
 const { sumArray } = require("../utils/functions");
+const jwt = require("jsonwebtoken");
 
 module.exports = {
 	home: async (req, res, next) => {
@@ -36,6 +37,8 @@ module.exports = {
             FROM service_view
             WHERE service_status = 'Published'
 			AND is_featured = 'Yes'
+			AND expires_at > NOW()
+			ORDER BY service_id DESC
 			LIMIT 50
         `;
 		let query7 = `
@@ -75,6 +78,7 @@ module.exports = {
 					SELECT COUNT(*) AS category_listings_count
 					FROM service_view
 					WHERE service_category_id = ?
+					AND expires_at > NOW()
 				`,
 					[category.service_category_id]
 				);
@@ -296,6 +300,15 @@ module.exports = {
 		`;
 		const queryParams5 = [service_id];
 
+		let query6 = `
+			SELECT *
+			FROM service_schedule
+			WHERE schedule_end_time >= CURDATE()
+			AND service_id = ?
+			ORDER BY schedule_start_time ASC
+		`;
+		const queryParams6 = [service_id];
+
 		try {
 			// Get a connection from the pool
 			connection = await pool.getConnection();
@@ -305,6 +318,7 @@ module.exports = {
 			const [bookings] = await connection.execute(query3, queryParams3);
 			const [ratings] = await connection.execute(query4, queryParams4);
 			const [reviews] = await connection.execute(query5, queryParams5);
+			const [schedules] = await connection.execute(query6, queryParams6);
 
 			if (services.length === 0) {
 				res.status(404).render("404", {
@@ -330,11 +344,46 @@ module.exports = {
 			service.booking_count = bookings[0].booking_count;
 			service.ratings = ratings;
 			service.reviews = reviews;
+			service.schedules = schedules;
 
 			res.render("service", {
 				title: "Serve Hub - Service Detail",
 				service,
 				moment,
+			});
+		} catch (e) {
+			next(e);
+		} finally {
+			connection ? connection.release() : null;
+		}
+	},
+	accountVerification: async (req, res, next) => {
+		const { email } = req.query;
+
+		let connection;
+
+		let query = `
+            SELECT *
+            FROM users
+            WHERE user_email = ?
+			LIMIT 1
+        `;
+		const queryParams = [email];
+
+		try {
+			// Get a connection from the pool
+			connection = await pool.getConnection();
+
+			//check if user exists
+			const [users] = await connection.execute(query, queryParams);
+
+			if (users.length === 0) {
+				res.render("404", { title: "User not found" });
+			}
+
+			res.render("account-verification", {
+				title: "Account Verification",
+				user: users[0],
 			});
 		} catch (e) {
 			next(e);
@@ -437,6 +486,16 @@ module.exports = {
 			AND user_status = 'Active'
 		`;
 
+		let query11 = `
+			SELECT COALESCE(ROUND(SUM(service_charge), 2), 0) AS total_booking_income
+			FROM service_bookings_view
+		`;
+
+		let query12 = `
+			SELECT COALESCE(ROUND(SUM(price), 2), 0) AS total_subscription_income
+			FROM subscription_view
+		`;
+
 		try {
 			// Get a connection from the pool
 			connection = await pool.getConnection();
@@ -451,6 +510,8 @@ module.exports = {
 			const [admins] = await connection.execute(query8);
 			const [providers] = await connection.execute(query9);
 			const [customers] = await connection.execute(query10);
+			const [booking_income] = await connection.execute(query11);
+			const [subscription_income] = await connection.execute(query12);
 
 			//generate my monthly income chart
 			for (var i = 0; i < months.length; i++) {
@@ -520,6 +581,9 @@ module.exports = {
 				admin_count: admins[0].admin_count,
 				service_provider_count: providers[0].service_provider_count,
 				customer_count: customers[0].customer_count,
+				total_booking_income: booking_income[0].total_booking_income,
+				total_subscription_income:
+					subscription_income[0].total_subscription_income,
 				chart_data: chartData,
 			};
 
@@ -546,8 +610,112 @@ module.exports = {
 			title: "Serve Hub - Pricing Plans",
 		});
 	},
+	adminBooking: async (req, res) => {
+		res.render("admin/bookings", {
+			title: "Serve Hub - Bookings",
+		});
+	},
 
 	/* PROVIDER */
+	providerDashboard: async (req, res, next) => {
+		const { token } = req.query;
+		const decoded = jwt.verify(token, process.env.JWT_SECRET);
+		const { user_id } = decoded;
+
+		let dashboard;
+		let connection;
+
+		/* let query = `
+			SELECT GROUP_CONCAT(CONCAT("'", service_id, "'") SEPARATOR ', ') AS service_ids
+			FROM service_view
+			WHERE subscriber_id = ?
+		`;
+		const queryParams = [ user_id]; */
+
+		let query = `
+			SELECT COUNT(*) AS service_count
+			FROM service_view
+			WHERE subscriber_id = ?
+		`;
+		const queryParams = [user_id];
+
+		let query2 = `
+			SELECT COUNT(*) AS subscription_count
+			FROM subscription_view
+			WHERE subscriber_id = ?
+		`;
+		const queryParams2 = [user_id];
+
+		let query3 = `
+			SELECT COUNT(*) AS bookings_count
+			FROM service_bookings_view
+			WHERE provider_id = ?
+		`;
+		const queryParams3 = [user_id];
+
+		let query4 = `
+			SELECT COALESCE(ROUND(SUM(expected_payout), 2), 0) AS total_income
+			FROM service_bookings_view
+			WHERE provider_id = ?
+			AND payout_status = 'Paid Out'
+		`;
+		const queryParams4 = [user_id];
+
+		let query5 = `
+			SELECT COUNT(*) AS messages_count
+			FROM messages
+			WHERE provider_id = ?
+		`;
+		const queryParams5 = [user_id];
+
+		let query6 = `
+			SELECT *
+			FROM subscription_view
+			WHERE subscriber_id = ?
+			ORDER BY subscription_id DESC
+			LIMIT 1
+		`;
+		const queryParams6 = [user_id];
+
+		try {
+			// Get a connection from the pool
+			connection = await pool.getConnection();
+
+			//count all my services
+			const [services] = await connection.execute(query, queryParams);
+			//count all my subscriptions
+			const [subscriptions] = await connection.execute(
+				query2,
+				queryParams2
+			);
+			//count all my bookings
+			const [bookings] = await connection.execute(query3, queryParams3);
+			//sum my income
+			const [income] = await connection.execute(query4, queryParams4);
+			//count all my messages
+			const [messages] = await connection.execute(query5, queryParams5);
+			//get last subscription plan
+			const [plans] = await connection.execute(query6, queryParams6);
+
+			dashboard = {
+				service_count: services[0].service_count,
+				subscription_count: subscriptions[0].subscription_count,
+				bookings_count: bookings[0].bookings_count,
+				total_income: income[0].total_income,
+				messages_count: messages[0].messages_count,
+				plan: plans[0],
+			};
+
+			res.render("provider/dashboard", {
+				title: "Serve Hub - Dashboard",
+				dashboard,
+			});
+		} catch (e) {
+			next(e);
+		} finally {
+			connection ? connection.release() : null;
+		}
+	},
 	providerServices: async (req, res) => {
 		res.render("provider/services", {
 			title: "Serve Hub - Provider Services",
